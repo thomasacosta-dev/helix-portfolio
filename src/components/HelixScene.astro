@@ -1,0 +1,356 @@
+<div class="helix-scene" data-helix-scene>
+	<canvas class="helix-canvas" data-helix-canvas aria-label="Partículas que forman el logo 3D de HELIX"></canvas>
+	<svg class="helix-fallback" viewBox="0 0 600 720" role="img" aria-label="Emblema de HELIX">
+		<image href="/helix-emblem.png" x="90" y="40" width="420" height="640" preserveAspectRatio="xMidYMid meet" />
+	</svg>
+</div>
+
+<script>
+	// ─── CONFIG ──────────────────────────────────────────────────────────
+	// Animation & visual constants for the 3D HELIX Logo scene.
+	const CONFIG = {
+		FORM_DURATION:    5.2,   // seconds: swarm → 3D logo formation
+		DELAY_SPREAD:     0.40,  // per-particle random delay fraction
+		DRIFT_SPEED:      0.10,  // swarm ambient drift speed multiplier
+		TURBULENCE:       0.12,  // max mid-path turbulence in world units
+		ROTATION_AMP:     18,    // yaw oscillation amplitude in degrees (±18°)
+		ROTATION_PERIOD:  14,    // yaw oscillation period in seconds
+		CURSOR_YAW:       8,     // cursor yaw influence in degrees (±8°)
+		CURSOR_PITCH:     5,     // cursor pitch influence in degrees (±5°)
+		SCROLL_LERP:      0.04,  // scroll progress lerp factor
+		PARTICLE_OPACITY: 0.95,  // vivid base opacity for bright brand appearance
+		POINT_SIZE:       2.1,   // readable point size for crisp logo definition
+		TEXT_OPACITY:     0.30,  // particle opacity multiplier inside text block rect
+		OFFSET_X:         1.95,  // center position of logo in right column
+		CANVAS_OPACITY:   1.0,   // canvas element opacity when fully visible
+	};
+	// ─────────────────────────────────────────────────────────────────────
+
+	const sceneRoot     = document.querySelector('[data-helix-scene]');
+	const canvas        = sceneRoot?.querySelector('[data-helix-canvas]');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const finePointer   = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+	const mobileDevice  = window.matchMedia('(max-width: 768px)').matches ||
+	                      window.matchMedia('(pointer: coarse)').matches ||
+	                      (window.innerWidth < 700) ||
+	                      (document.documentElement.clientWidth < 700);
+
+	const initScene = async () => {
+		const THREE = await import('three');
+
+		// Web Worker for 3D logo sampling
+		const worker = new Worker(
+			new URL('../workers/helix-particles.worker.js', import.meta.url),
+			{ type: 'module' },
+		);
+		const count = window.innerWidth < 1100 ? 6000 : 14000;
+		worker.postMessage({ count, emblemUrl: '/helix-emblem.png' });
+
+		const particleData = await new Promise((resolve, reject) => {
+			worker.addEventListener('message', (e) => resolve(e.data), { once: true });
+			worker.addEventListener('error', reject, { once: true });
+		});
+
+		// WebGL Renderer
+		const renderer = new THREE.WebGLRenderer({
+			canvas,
+			alpha: true,
+			antialias: false,
+			powerPreference: 'high-performance',
+		});
+		renderer.setClearColor(0x000000, 0);
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+		// Promote canvas to full viewport fixed layer
+		sceneRoot.classList.add('is-full-viewport');
+
+		// Camera
+		const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 200);
+		camera.position.set(0, 0, 8.8);
+
+		// Scene & BufferGeometry
+		const scene = new THREE.Scene();
+		const geo = new THREE.BufferGeometry();
+		geo.setAttribute('position', new THREE.BufferAttribute(particleData.start, 3));
+		geo.setAttribute('aStart',   new THREE.BufferAttribute(particleData.start, 3));
+		geo.setAttribute('aLogo',    new THREE.BufferAttribute(particleData.logo,  3));
+		geo.setAttribute('aRand',    new THREE.BufferAttribute(particleData.random, 1));
+		geo.setAttribute('aColor',   new THREE.BufferAttribute(particleData.color, 3));
+
+		const uTextRect = new THREE.Vector4(0, 0, 0, 0);
+
+		const DS     = CONFIG.DELAY_SPREAD.toFixed(4);
+		const TURB   = CONFIG.TURBULENCE.toFixed(4);
+		const DRFT_A = (CONFIG.DRIFT_SPEED * 5.0).toFixed(4);
+		const DRFT_B = (CONFIG.DRIFT_SPEED * 2.1).toFixed(4);
+		const PO     = CONFIG.PARTICLE_OPACITY.toFixed(4);
+		const PS     = CONFIG.POINT_SIZE.toFixed(4);
+		const TO     = CONFIG.TEXT_OPACITY.toFixed(4);
+
+		const material = new THREE.ShaderMaterial({
+			uniforms: {
+				uProgress: { value: 0 },
+				uDisperse: { value: 0 },
+				uTime:     { value: 0 },
+				uMouse:    { value: new THREE.Vector3() },
+				uTextRect: { value: uTextRect },
+			},
+			vertexShader: [
+				'attribute vec3  aStart;',
+				'attribute vec3  aLogo;',
+				'attribute float aRand;',
+				'attribute vec3  aColor;',
+				'uniform float uProgress;',
+				'uniform float uDisperse;',
+				'uniform float uTime;',
+				'uniform vec3  uMouse;',
+				'varying vec3  vColor;',
+				'float smootherstep(float e0, float e1, float x) {',
+				'  float t = clamp((x - e0) / (e1 - e0), 0.0, 1.0);',
+				'  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);',
+				'}',
+				'void main() {',
+				'  float ds      = ' + DS + ';',
+				'  float pStart  = aRand * ds;',
+				'  float pEnd    = pStart + (1.0 - ds);',
+				'  float delayed = smootherstep(pStart, pEnd, uProgress);',
+				'  float turbEnv = smoothstep(0.0, 0.45, uProgress) * (1.0 - smoothstep(0.45, 1.0, uProgress));',
+				'  float noiseA  = sin(uTime * ' + DRFT_A + ' + aRand * 31.0);',
+				'  float noiseB  = sin(uTime * ' + DRFT_B + ' + aStart.y * 2.0);',
+				'  float turb    = noiseA * noiseB * turbEnv * ' + TURB + ';',
+				'  vec3 formed   = mix(aStart, aLogo, delayed);',
+				'  formed += vec3(turb, turb * 0.65, -turb * 0.8);',
+				'  vec3  toMouse = formed - uMouse;',
+				'  float dist    = length(toMouse);',
+				'  float repel   = smoothstep(0.35, 0.0, dist) * 0.04;',
+				'  formed += normalize(toMouse + vec3(0.001)) * repel;',
+				'  vec3 displaced = formed + normalize(formed - uMouse + vec3(0.001)) * uDisperse * (0.15 + aRand * 0.35);',
+				'  vec4 mv = modelViewMatrix * vec4(displaced, 1.0);',
+				'  gl_Position  = projectionMatrix * mv;',
+				'  gl_PointSize = (' + PS + ' + aRand * 0.8) * (7.2 / -mv.z);',
+				'  vColor = aColor;',
+				'}',
+			].join('\n'),
+			fragmentShader: [
+				'varying vec3 vColor;',
+				'uniform vec4 uTextRect;',
+				'void main() {',
+				'  float d = distance(gl_PointCoord, vec2(0.5));',
+				'  float alpha = smoothstep(0.5, 0.02, d) * ' + PO + ';',
+				'  if (alpha < 0.01) discard;',
+				'  float inBox = step(uTextRect.x, gl_FragCoord.x)',
+				'              * step(gl_FragCoord.x, uTextRect.x + uTextRect.z)',
+				'              * step(uTextRect.y, gl_FragCoord.y)',
+				'              * step(gl_FragCoord.y, uTextRect.y + uTextRect.w);',
+				'  alpha *= mix(1.0, ' + TO + ', inBox);',
+				'  gl_FragColor = vec4(vColor, alpha);',
+				'}',
+			].join('\n'),
+			transparent: true,
+			depthWrite:  false,
+			blending:    THREE.AdditiveBlending,
+		});
+
+		const particles = new THREE.Points(geo, material);
+		// Face front to camera at rest; position in right column
+		particles.rotation.set(0, 0, 0);
+		particles.position.x = CONFIG.OFFSET_X;
+		scene.add(particles);
+
+		// Tight text bounding box for uTextRect
+		const headlineBlock = document.querySelector('.hero-stage h1');
+		const updateTextRect = () => {
+			if (!headlineBlock) return;
+			const r   = headlineBlock.getBoundingClientRect();
+			const dpr = Math.min(window.devicePixelRatio, 1.5);
+			const glY = (window.innerHeight - r.bottom) * dpr;
+			// Add small 12px padding so attenuation matches the tight text box
+			const pad = 12 * dpr;
+			uTextRect.set(
+				Math.max(0, r.left * dpr - pad),
+				Math.max(0, glY - pad),
+				r.width * dpr + pad * 2,
+				r.height * dpr + pad * 2
+			);
+		};
+		updateTextRect();
+
+		// Resize handler
+		const resize = () => {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight, false);
+			updateTextRect();
+		};
+		resize();
+
+		// State & loop variables
+		const heroStage = document.querySelector('.hero-stage');
+		let rawScroll    = 0;
+		let smoothScroll = 0;
+		let pointerX     = 0;
+		let pointerY     = 0;
+		let focusIndex   = 0;
+		let startTime    = null;
+		let heroInView   = true;
+		let contactInView = false;
+		let renderActive = true;
+		let yawCurrent   = 0;
+		let pitchCurrent = 0;
+
+		const updateScroll = () => {
+			const heroH = heroStage?.offsetHeight || window.innerHeight;
+			// Deadzone: strictly 0 scroll dispersion while hero is at top (< 40px)
+			const scrollDist = Math.max(0, window.scrollY - 30);
+			rawScroll = Math.min(Math.max(scrollDist / (heroH * 0.85), 0), 1);
+			if (window.scrollY < 120 && heroInView) {
+				resume();
+			}
+		};
+
+		const updatePointer = (e) => {
+			pointerX = (e.clientX / window.innerWidth  - 0.5) * 2;
+			pointerY = (e.clientY / window.innerHeight - 0.5) * 2;
+		};
+
+		// Main render function
+		const render = (event) => {
+			if (!renderActive) return;
+
+			const time = event.detail?.time || 0;
+			if (startTime === null) startTime = time;
+			const elapsed = time - startTime;
+
+			smoothScroll += (rawScroll - smoothScroll) * CONFIG.SCROLL_LERP;
+
+			material.uniforms.uTime.value     = time;
+			material.uniforms.uProgress.value = Math.min(1, elapsed / CONFIG.FORM_DURATION);
+			// Dispersion strictly 0 at rest in hero
+			material.uniforms.uDisperse.value = smoothScroll * 0.45;
+
+			// Natural yaw oscillation ±18° + cursor influence ±8°
+			const yawOscillation = Math.sin((time * 2 * Math.PI) / CONFIG.ROTATION_PERIOD)
+			                       * (CONFIG.ROTATION_AMP * Math.PI / 180);
+			const yawTarget = yawOscillation + pointerX * (CONFIG.CURSOR_YAW * Math.PI / 180) + focusIndex * 0.03;
+			yawCurrent += (yawTarget - yawCurrent) * 0.03;
+			particles.rotation.y = yawCurrent;
+
+			// Subtle pitch ±5° with cursor
+			const pitchTarget = -pointerY * (CONFIG.CURSOR_PITCH * Math.PI / 180);
+			pitchCurrent += (pitchTarget - pitchCurrent) * 0.03;
+			particles.rotation.x = pitchCurrent;
+
+			material.uniforms.uMouse.value.set(
+				pointerX * 2.0 - CONFIG.OFFSET_X * 0.5,
+				-pointerY * 2.0,
+				0,
+			);
+
+			renderer.render(scene, camera);
+
+			// Pause rendering when scrolled past hero and not in contact
+			if (smoothScroll > 0.97 && !heroInView && !contactInView) {
+				renderActive = false;
+				if (canvas) canvas.style.opacity = '0';
+			}
+		};
+
+		const updateFocus = (e) => { focusIndex = Number(e.detail?.index || 0); };
+
+		let drivenByGsap = false;
+		let rafId = null;
+		const localLoop = (timeMs) => {
+			if (!drivenByGsap && renderActive) {
+				render({ detail: { time: timeMs * 0.001 } });
+				rafId = requestAnimationFrame(localLoop);
+			}
+		};
+
+		const resume = () => {
+			if (!renderActive) {
+				renderActive = true;
+				if (canvas) canvas.style.opacity = String(CONFIG.CANVAS_OPACITY);
+				if (!drivenByGsap) {
+					cancelAnimationFrame(rafId);
+					rafId = requestAnimationFrame(localLoop);
+				}
+			}
+		};
+
+		// Observers: pause strictly outside hero and contact
+		const heroObserver = new IntersectionObserver(
+			([entry]) => {
+				heroInView = entry.isIntersecting;
+				if (heroInView) {
+					resume();
+				} else if (!contactInView) {
+					renderActive = false;
+					if (canvas) canvas.style.opacity = '0';
+				}
+			},
+			{ rootMargin: '100px 0px', threshold: 0 },
+		);
+		if (heroStage) heroObserver.observe(heroStage);
+
+		const contact = document.querySelector('#contacto');
+		const contactObserver = contact
+			? new IntersectionObserver(
+				([entry]) => {
+					contactInView = entry.isIntersecting;
+					if (contactInView) {
+						resume();
+					} else if (!heroInView) {
+						renderActive = false;
+						if (canvas) canvas.style.opacity = '0';
+					}
+				},
+				{ threshold: 0.1 },
+			)
+			: null;
+		if (contact && contactObserver) contactObserver.observe(contact);
+
+		// Event listeners
+		window.addEventListener('scroll',      updateScroll,  { passive: true });
+		window.addEventListener('resize',      resize,        { passive: true });
+		window.addEventListener('helix-focus', updateFocus);
+		window.addEventListener('helix-tick',  (e) => {
+			drivenByGsap = true;
+			render(e);
+		});
+		if (finePointer) window.addEventListener('pointermove', updatePointer, { passive: true });
+
+		// Start local loop until GSAP ticker kicks in
+		rafId = requestAnimationFrame(localLoop);
+
+		// Fade canvas in smoothly
+		requestAnimationFrame(() => {
+			if (canvas) canvas.style.opacity = String(CONFIG.CANVAS_OPACITY);
+		});
+
+		window.__HELIX_READY__ = true;
+		window.__HELIX_CONFIG__ = CONFIG;
+
+		window.addEventListener('pagehide', () => {
+			worker.terminate();
+			heroObserver.disconnect();
+			contactObserver?.disconnect();
+			if (rafId) cancelAnimationFrame(rafId);
+		}, { once: true });
+	};
+
+	if (sceneRoot && canvas && !reducedMotion && !mobileDevice && !!window.WebGLRenderingContext) {
+		const start = () => initScene().catch(() => sceneRoot.classList.add('helix-static'));
+		const visibilityObserver = new IntersectionObserver(
+			([entry]) => {
+				if (!entry.isIntersecting) return;
+				visibilityObserver.disconnect();
+				if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 2200 });
+				else window.setTimeout(start, 900);
+			},
+			{ rootMargin: '200px' },
+		);
+		visibilityObserver.observe(sceneRoot);
+	} else {
+		sceneRoot?.classList.add('helix-static');
+	}
+</script>

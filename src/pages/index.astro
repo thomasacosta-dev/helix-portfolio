@@ -1,0 +1,297 @@
+---
+import '../styles/global.css';
+import HelixScene from '../components/HelixScene.astro';
+
+const capabilities = [
+	{ title: 'Automatización', text: 'Conectamos herramientas y eliminamos pasos manuales que frenan la operación.', terms: 'Integraciones · Workflows · IA aplicada' },
+	{ title: 'Datos que deciden', text: 'Convertimos eventos dispersos en tableros que muestran qué está pasando y qué sigue.', terms: 'Dashboards · Alertas · Trazabilidad' },
+	{ title: 'Producto a medida', text: 'Diseñamos software alrededor de la forma real en que trabaja tu equipo.', terms: 'Web apps · APIs · Sistemas internos' },
+	{ title: 'Equipo dedicado', text: 'Sumamos capacidad bilingüe y cercana para avanzar con contexto, no con tickets aislados.', terms: 'Nearshoring · Discovery · Delivery' },
+];
+
+const capabilitiesEn = [
+	{ domain: 'Integrations', title: 'Automation', text: 'Connect tools and remove manual steps that slow operations.' },
+	{ domain: 'Dashboards', title: 'Data that decides', text: 'Turn scattered events into views that show what is happening and what comes next.' },
+	{ domain: 'Web apps', title: 'Built to fit', text: 'Design software around the way your team actually works.' },
+	{ domain: 'Nearshoring', title: 'Dedicated team', text: 'Add bilingual, nearby capacity that moves with context instead of isolated tickets.' },
+];
+
+const industries = ['Logística', 'Delivery', 'WFM', 'Contact center'];
+
+const caseStudies = [
+	['[PLACEHOLDER] Control operativo de entregas', 'Delivery · Integración · Datos', 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=82', 'Centro de distribución con cajas listas para despacho'],
+	['[PLACEHOLDER] Planeación de turnos', 'WFM · Automatización · Visibilidad', 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=82', 'Equipo reunido alrededor de una mesa de trabajo'],
+	['[PLACEHOLDER] Vista única para soporte', 'Contact center · APIs · Operación', 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=82', 'Equipo revisando datos en una pantalla'],
+	['[PLACEHOLDER] Flujo de despacho', 'Logística · Producto a medida · IA', 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=82', 'Equipo revisando datos en una pantalla'],
+];
+
+const caseStudiesEn = [
+	['[PLACEHOLDER] Delivery operations control', 'Delivery · Integration · Data'],
+	['[PLACEHOLDER] Shift planning', 'WFM · Automation · Visibility'],
+	['[PLACEHOLDER] One support view', 'Contact center · APIs · Operations'],
+	['[PLACEHOLDER] Dispatch workflow', 'Logistics · Built to fit · Applied AI'],
+];
+
+const team = [
+	['[PLACEHOLDER] Nombre del equipo', 'Engineering lead'],
+	['[PLACEHOLDER] Nombre del equipo', 'Product & delivery'],
+	['[PLACEHOLDER] Nombre del equipo', 'Data & automation'],
+	['[PLACEHOLDER] Nombre del equipo', 'Nearshore partner'],
+];
+
+const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conectamos lo que ya existe para que tu equipo pueda decidir, avanzar y aprender con más claridad.'.split(' ');
+---
+
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#0B0B0E" />
+		<meta name="description" content="HELIX integra sistemas, datos e IA para resolver problemas operativos específicos." />
+		<meta property="og:title" content="HELIX · Ingeniería para operaciones reales" />
+		<meta property="og:description" content="Un equipo colombiano bilingüe para automatizar, integrar y construir software que mueve tu operación." />
+		<meta property="og:image" content="/helix-emblem.png" />
+		<meta property="og:type" content="website" />
+		<link rel="icon" href="/helix-emblem.png" />
+		<link rel="preload" href="/_astro/dm-sans-latin-wght-normal.Xz1IZZA0.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/_astro/bricolage-grotesque-latin-wght-normal.DLoelf7F.woff2" as="font" type="font/woff2" crossorigin />
+		<title>HELIX · Ingeniería para operaciones reales</title>
+	</head>
+	<body class="editorial-phase-one editorial-phase-two">
+		<div class="preloader" data-preloader role="status" aria-live="polite">
+			<div class="preloader-brand"><img src="/helix-emblem.png" width="72" height="72" alt="Emblema HELIX" /><span>H E L I X</span></div>
+			<p class="preloader-caption">Ingeniería cercana</p>
+			<div class="preloader-track"><span></span></div>
+			<strong class="preloader-counter" data-preloader-counter>0%</strong>
+			<button class="preloader-skip" type="button" data-preloader-skip>Skip intro</button>
+		</div>
+		<div class="custom-cursor" data-custom-cursor aria-hidden="true"><span></span></div>
+		<div class="page-shell">
+			<section class="hero-screen" id="top" aria-labelledby="hero-title">
+				<header class="site-header reveal" style="--delay: 0ms">
+					<a class="brand-lockup" href="#top" aria-label="HELIX, inicio"><img src="/helix-emblem.png" width="32" height="32" alt="" /><span>H E L I X</span></a>
+					<span class="header-context">(Ingeniería operativa)</span>
+					<button class="menu-trigger" type="button" aria-label="Abrir menú">(Menú)</button>
+				</header>
+				<aside class="menu-overlay" data-menu-overlay aria-hidden="true" inert>
+					<button class="menu-close" type="button" data-menu-close aria-label="Cerrar menú">Cerrar ×</button>
+					<nav aria-label="Menú principal">
+						<a href="#soluciones" data-menu-link>Qué resolvemos <span>↗</span></a>
+						<a href="#proceso" data-menu-link>Cómo trabajamos <span>↗</span></a>
+						<a href="#casos" data-menu-link>Casos <span>↗</span></a>
+						<a href="#contacto" data-menu-link>Hablemos <span>↗</span></a>
+					</nav>
+				</aside>
+
+				<div class="hero-content">
+					<div class="hero-stage-copy">
+						<p class="editorial-label">(HELIX · Colombia · UTC−5)</p>
+						<h1 id="hero-title">
+							<span class="hero-title-main" data-es="CONECTA" data-en="CONNECT">CONECTA</span>
+							<span class="hero-title-sub"><em data-es="lo que ya existe." data-en="what already exists.">lo que ya existe.</em></span>
+						</h1>
+						<p class="hero-lede" data-es="Integramos sistemas, datos e IA para resolver problemas operativos específicos." data-en="We integrate systems, data and AI to solve specific operational problems.">Integramos sistemas, datos e IA para resolver problemas operativos específicos.</p>
+						<a class="editorial-cta" href="#soluciones"><span></span><span data-es="Ver el enfoque" data-en="See our approach">Ver el enfoque</span></a>
+					</div>
+					<div class="hero-scene-anchor">
+						<HelixScene />
+					</div>
+					<div class="hero-problem-block">
+						<p class="editorial-label" data-es="(Lo que resolvemos)" data-en="(What we solve)">(Lo que resolvemos)</p>
+						<p class="hero-problem-intro" data-es="Ingeniería que conecta sistemas, datos y personas. Software hecho a la medida de cómo trabaja tu equipo." data-en="Engineering that connects systems, data and people. Software made around the way your team works.">Ingeniería que conecta sistemas, datos y personas. Software hecho a la medida de cómo trabaja tu equipo.</p>
+						<div class="hero-problem-list">
+							<a href="#casos" class="hero-problem-row" data-helix-state="0"><span class="hero-problem-index">01</span><strong data-es="Pedidos que se pierden" data-en="Orders that get lost">Pedidos que se pierden</strong><span data-es="Integraciones · Delivery" data-en="Integrations · Delivery">Integraciones · Delivery</span><b aria-hidden="true">↗</b></a>
+							<a href="#casos" class="hero-problem-row" data-helix-state="1"><span class="hero-problem-index">02</span><strong data-es="Turnos que no cuadran" data-en="Shifts that do not add up">Turnos que no cuadran</strong><span data-es="Planeación · WFM" data-en="Planning · WFM">Planeación · WFM</span><b aria-hidden="true">↗</b></a>
+							<a href="#casos" class="hero-problem-row" data-helix-state="2"><span class="hero-problem-index">03</span><strong data-es="Clientes sin respuesta" data-en="Customers without an answer">Clientes sin respuesta</strong><span data-es="Contact center · IA aplicada" data-en="Contact center · Applied AI">Contact center · IA aplicada</span><b aria-hidden="true">↗</b></a>
+						</div>
+					</div>
+				</div>
+
+				<div class="editorial-marquee" aria-hidden="true"><span>HELIX · INGENIERÍA CERCANA · SISTEMAS · DATOS · PERSONAS · </span><span>HELIX · INGENIERÍA CERCANA · SISTEMAS · DATOS · PERSONAS · </span></div>
+			</section>
+
+			<main>
+
+				<section class="editorial-manifesto" aria-labelledby="manifesto-title">
+					<div class="manifesto-aside">
+						<em>(El equipo)</em>
+						<div class="manifesto-rule"></div>
+						<div class="manifesto-fact"><strong>4</strong><span data-es="capacidades conectadas: automatización, datos, producto y equipo" data-en="connected capabilities: automation, data, product and team">capacidades conectadas: automatización, datos, producto y equipo</span></div>
+						<div class="manifesto-rule"></div>
+						<div class="manifesto-fact"><strong>ES·EN</strong><span data-es="equipo bilingüe, zona horaria UTC−5" data-en="bilingual team, UTC−5 time zone">equipo bilingüe, zona horaria UTC−5</span></div>
+						<div class="manifesto-rule"></div>
+					</div>
+					<div class="manifesto-main">
+						<p id="manifesto-title" class="manifesto-copy" data-manifesto>{manifestoWords.map((word) => <span>{word}</span>)}</p>
+						<p class="manifesto-secondary" data-es="Un solo equipo, de la primera conversación a la entrega. Siempre sabes quién diseña, quién desarrolla y quién responde." data-en="One team, from the first conversation to delivery. You always know who designs, who builds and who responds.">Un solo equipo, de la primera conversación a la entrega. Siempre sabes quién diseña, quién desarrolla y quién responde.</p>
+					</div>
+				</section>
+
+				<section class="section capabilities-section" id="soluciones" aria-labelledby="solutions-title">
+					<div class="section-heading reveal"><h2 id="solutions-title" data-es="Conectamos lo que ya tienes" data-en="We connect what you have">Conectamos lo que ya tienes</h2><p data-es="Tu operación no necesita otra herramienta aislada. Necesita que los sistemas hablen entre sí y que tu equipo vea qué hacer después." data-en="Your operation does not need another isolated tool. It needs systems that talk to each other and a team that can see what comes next.">Tu operación no necesita otra herramienta aislada. Necesita que los sistemas hablen entre sí y que tu equipo vea qué hacer después.</p></div>
+					<div class="capability-editorial-list">
+						{capabilities.map((item, index) => <a class="capability-editorial-row reveal" href="#contacto" style={`--delay: ${index * 70}ms`} data-helix-state={index}><span class="capability-number">0{index + 1}</span><strong data-es={item.title} data-en={capabilitiesEn[index].title}>{item.title}</strong><span class="capability-detail" data-es={item.text} data-en={capabilitiesEn[index].text}>{item.text}</span><span class="capability-terms" data-es={item.terms} data-en={index === 0 ? 'Integrations · Workflows · Applied AI' : index === 1 ? 'Dashboards · Alerts · Traceability' : index === 2 ? 'Web apps · APIs · Internal systems' : 'Nearshoring · Discovery · Delivery'}>{item.terms}</span><b aria-hidden="true">↗</b></a>)}
+					</div>
+				</section>
+
+				<section class="section industries-section" id="industrias" aria-labelledby="industry-title">
+					<div class="section-heading reveal"><h2 id="industry-title" data-es="Conocemos operaciones complejas" data-en="We know complex operations">Conocemos operaciones complejas</h2><p data-es="Trabajamos donde cada retraso cuesta tiempo: rutas, turnos, pedidos y conversaciones con clientes." data-en="We work where every delay costs time: routes, shifts, orders and customer conversations.">Trabajamos donde cada retraso cuesta tiempo: rutas, turnos, pedidos y conversaciones con clientes.</p></div>
+					<div class="photo-rail" aria-label="Escenas de trabajo y operación"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Espacio de trabajo amplio y luminoso" /><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Persona trabajando con un portátil y datos" /><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Equipo trabajando en una oficina" /></div>
+					<div class="industry-strip">{industries.map((industry, index) => <div class="industry-item reveal" style={`--delay: ${index * 60}ms`}><h3 data-es={industry} data-en={['Logistics', 'Delivery', 'WFM', 'Contact center'][index]}>{industry}</h3></div>)}</div>
+				</section>
+
+				<section class="section method-section" id="proceso" aria-labelledby="process-title">
+					<div class="process reveal">
+						<div class="process-intro"><h2 id="process-title" data-es="Entender, enfocar, construir, aprender." data-en="Understand, focus, build, learn.">Entender, enfocar, construir, aprender.</h2><p data-es="Convertimos un problema operativo en una decisión concreta, una entrega que se puede usar y un siguiente paso con evidencia." data-en="We turn an operational problem into a clear decision, a usable delivery and an evidenced next step.">Convertimos un problema operativo en una decisión concreta, una entrega que se puede usar y un siguiente paso con evidencia.</p></div>
+						<div class="process-steps">
+							<article class="process-step is-active" data-process-step="0" aria-current="step"><span class="process-step-index">01</span><div><h3 data-es="Entender" data-en="Understand">Entender</h3><p data-es="Mapeamos decisiones, sistemas, datos y excepciones para ver dónde se pierde el control." data-en="We map decisions, systems, data and exceptions to see where control gets lost.">Mapeamos decisiones, sistemas, datos y excepciones para ver dónde se pierde el control.</p><dl><div><dt data-es="Recibes" data-en="You get">Recibes</dt><dd data-es="Mapa del flujo real y sus fricciones." data-en="A map of the real workflow and its friction.">Mapa del flujo real y sus fricciones.</dd></div><div><dt data-es="Decidimos" data-en="We decide">Decidimos</dt><dd data-es="Qué problema merece atención primero." data-en="Which problem deserves attention first.">Qué problema merece atención primero.</dd></div></dl></div></article>
+							<article class="process-step" data-process-step="1"><span class="process-step-index">02</span><div><h3 data-es="Enfocar" data-en="Focus">Enfocar</h3><p data-es="Elegimos una primera mejora que pueda probarse, usarse y medirse sin esperar a rehacer todo." data-en="We choose a first improvement that can be tested, used and measured without rebuilding everything.">Elegimos una primera mejora que pueda probarse, usarse y medirse sin esperar a rehacer todo.</p><dl><div><dt data-es="Recibes" data-en="You get">Recibes</dt><dd data-es="Alcance claro y criterio de éxito." data-en="A clear scope and success criteria.">Alcance claro y criterio de éxito.</dd></div><div><dt data-es="Decidimos" data-en="We decide">Decidimos</dt><dd data-es="Si conviene un proyecto cerrado o un equipo dedicado." data-en="Whether a fixed project or a dedicated team fits best.">Si conviene un proyecto cerrado o un equipo dedicado.</dd></div></dl></div></article>
+							<article class="process-step" data-process-step="2"><span class="process-step-index">03</span><div><h3 data-es="Construir" data-en="Build">Construir</h3><p data-es="Diseñamos, integramos y entregamos con tu equipo cerca, validando antes de sumar complejidad." data-en="We design, integrate and deliver alongside your team, validating before adding complexity.">Diseñamos, integramos y entregamos con tu equipo cerca, validando antes de sumar complejidad.</p><dl><div><dt data-es="Recibes" data-en="You get">Recibes</dt><dd data-es="Una mejora operativa usable y documentada." data-en="A usable, documented operational improvement.">Una mejora operativa usable y documentada.</dd></div><div><dt data-es="Decidimos" data-en="We decide">Decidimos</dt><dd data-es="Qué dejamos listo para operar y qué iteramos." data-en="What is ready to run and what we iterate.">Qué dejamos listo para operar y qué iteramos.</dd></div></dl></div></article>
+							<article class="process-step" data-process-step="3"><span class="process-step-index">04</span><div><h3 data-es="Aprender" data-en="Learn">Aprender</h3><p data-es="Observamos lo que cambió en la operación y usamos esa evidencia para elegir el siguiente ciclo." data-en="We observe what changed in the operation and use that evidence to choose the next cycle.">Observamos lo que cambió en la operación y usamos esa evidencia para elegir el siguiente ciclo.</p><dl><div><dt data-es="Recibes" data-en="You get">Recibes</dt><dd data-es="Aprendizajes y próximos movimientos priorizados." data-en="Learnings and prioritized next moves.">Aprendizajes y próximos movimientos priorizados.</dd></div><div><dt data-es="Decidimos" data-en="We decide">Decidimos</dt><dd data-es="Qué escalar, ajustar o detener." data-en="What to scale, adjust or stop.">Qué escalar, ajustar o detener.</dd></div></dl></div></article>
+						</div>
+					</div>
+				</section>
+
+				<section class="section cases-section" id="casos" aria-labelledby="cases-title">
+					<div class="section-heading reveal"><h2 id="cases-title" data-es="Casos que pronto serán reales" data-en="Cases that will soon be real">Casos que pronto serán reales</h2><p data-es="Usamos estas escenas como estructura visual. Reemplaza los textos marcados cuando tengas los proyectos y resultados verificados." data-en="These scenes are visual scaffolding. Replace the marked copy when you have verified projects and outcomes.">Usamos estas escenas como estructura visual. Reemplaza los textos marcados cuando tengas los proyectos y resultados verificados.</p></div>
+					<div class="work-index">{caseStudies.map(([title, category, image, alt], index) => <a class="work-row reveal" href="#contacto"><img loading="lazy" decoding="async" class="case-image" src={image} alt={alt} width="1200" height="800" /><div class="case-copy"><h3 data-es={title} data-en={caseStudiesEn[index][0]}>{title}</h3><p data-es={category} data-en={caseStudiesEn[index][1]}>{category}<br /><span class="placeholder" data-es="[PLACEHOLDER: problema, alcance, resultado verificable]" data-en="[PLACEHOLDER: problem, scope, verified result]">[PLACEHOLDER: problema, alcance, resultado verificable]</span></p></div></a>)}</div>
+				</section>
+
+				<section class="section team-section" aria-labelledby="team-title">
+					<div class="section-heading reveal"><h2 id="team-title" data-es="Un equipo cerca" data-en="A team nearby">Un equipo cerca</h2><p data-es="Somos un equipo bilingüe en Colombia, alineado con Estados Unidos y con el contexto para hablar de operación, no solo de entregables." data-en="We are a bilingual team in Colombia, aligned with the US and close enough to talk operations, not just deliverables.">Somos un equipo bilingüe en Colombia, alineado con Estados Unidos y con el contexto para hablar de operación, no solo de entregables.</p></div>
+					<div class="team-grid">{team.map(([name, role], index) => <div class="team-item reveal" style={`--delay: ${index * 70}ms`}><strong>{name}</strong><span>{role}</span></div>)}</div>
+				</section>
+
+				<section class="section stack-section" aria-labelledby="stack-title">
+					<div class="stack-line reveal"><strong id="stack-title" data-i18n="stackTitle">Construimos con criterio:</strong><span>APIs</span><span>Data</span><span>Cloud</span><span>IA aplicada</span><span>Apps internas</span><span>Integraciones</span></div>
+				</section>
+
+				<section class="contact reveal" id="contacto" aria-labelledby="contact-title">
+					<div class="contact-heading"><h2 id="contact-title" data-i18n="contactTitle">Hablemos del problema.</h2><p data-i18n="contactIntro">Cuéntanos qué parte de tu operación necesita claridad. Te responderemos con preguntas útiles, no con una presentación prefabricada.</p></div>
+					<form class="contact-form" data-contact-form><label for="name">Nombre</label><input id="name" name="name" autocomplete="name" placeholder="Tu nombre" data-es="Tu nombre" data-en="Your name" required /><label for="email">Correo</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Tu correo de trabajo" data-es="Tu correo de trabajo" data-en="Your work email" required /><button type="submit" data-i18n="contactButton">Solicitar conversación ↗</button></form>
+					<p class="contact-note" data-form-status aria-live="polite"><span class="placeholder-note">[PLACEHOLDER:</span> conecta aquí tu agenda o endpoint de contacto <span class="placeholder-note">]</span></p>
+				</section>
+			</main>
+
+			<footer class="site-footer"><span>HELIX · Colombia</span><span class="colombia-time" data-colombia-time aria-label="Hora de Colombia"></span><a href="#top" data-i18n="footerBack">Volver arriba ↑</a><div class="language-switcher" aria-label="Selector de idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></footer>
+		</div>
+
+		<script>
+			const preloader = document.querySelector('[data-preloader]');
+			const preloaderCounter = document.querySelector('[data-preloader-counter]');
+			let interactionStarted = false;
+			const markInteraction = () => { interactionStarted = true; };
+			window.addEventListener('pointerdown', markInteraction, { once: true, passive: true });
+			window.addEventListener('wheel', markInteraction, { once: true, passive: true });
+			window.addEventListener('keydown', markInteraction, { once: true, passive: true });
+			const closePreloader = () => preloader?.classList.add('is-done');
+			preloader?.querySelector('[data-preloader-skip]')?.addEventListener('click', closePreloader);
+			let loadingProgress = 0;
+			const progressTimer = window.setInterval(() => {
+				loadingProgress = Math.min(100, loadingProgress + 8);
+				if (preloaderCounter) preloaderCounter.textContent = `${loadingProgress}%`;
+				if (loadingProgress === 100) {
+					window.clearInterval(progressTimer);
+					window.setTimeout(closePreloader, 180);
+				}
+			}, 75);
+			document.querySelectorAll('[data-helix-state]').forEach((item) => {
+				const focusHelix = () => window.dispatchEvent(new CustomEvent('helix-focus', { detail: { index: Number(item.dataset.helixState) } }));
+				item.addEventListener('pointerenter', focusHelix, { passive: true });
+				item.addEventListener('focus', focusHelix);
+			});
+			const isMobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 700;
+			window.addEventListener('touchstart', markInteraction, { once: true, passive: true });
+			if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && !isMobile) {
+				const startMotion = async () => {
+					const [{ default: gsap }, { ScrollTrigger }, { default: Lenis }] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger'), import('lenis')]);
+					gsap.registerPlugin(ScrollTrigger);
+					const canUseLenis = window.matchMedia('(hover: hover) and (pointer: fine)').matches || interactionStarted;
+					const lenis = canUseLenis ? new Lenis({ lerp: 0.08, smoothWheel: true }) : null;
+					lenis?.on('scroll', ScrollTrigger.update);
+					gsap.ticker.add((time) => {
+						lenis?.raf(time * 1000);
+						window.dispatchEvent(new CustomEvent('helix-tick', { detail: { time } }));
+					});
+					gsap.ticker.lagSmoothing(500, 33);
+					const method = document.querySelector('.method-section');
+					const steps = [...document.querySelectorAll('.process-step')];
+					const setActiveStep = (active) => steps.forEach((step, index) => {
+						step.classList.toggle('is-active', index === active);
+						if (index === active) step.setAttribute('aria-current', 'step');
+						else step.removeAttribute('aria-current');
+					});
+					if (method && steps.length) {
+						ScrollTrigger.create({
+							trigger: method,
+							start: 'top 20%',
+							end: 'bottom 65%',
+							onUpdate: ({ progress }) => {
+								const active = Math.min(steps.length - 1, Math.floor(progress * steps.length));
+								setActiveStep(active);
+								window.dispatchEvent(new CustomEvent('helix-focus', { detail: { index: active } }));
+							},
+						});
+					}
+					const manifesto = document.querySelector('[data-manifesto]');
+					if (manifesto) {
+						const words = [...manifesto.querySelectorAll('span')];
+						ScrollTrigger.create({
+							trigger: manifesto,
+							start: 'top 80%',
+							end: 'bottom 45%',
+							scrub: .6,
+							onUpdate: ({ progress }) => words.forEach((word, index) => {
+								const reveal = Math.max(0, Math.min(1, progress * words.length - index));
+								word.style.setProperty('--word-reveal', reveal.toFixed(3));
+							}),
+						});
+					}
+				};
+				const scheduleMotion = () => {
+					if ('requestIdleCallback' in window) window.requestIdleCallback(startMotion, { timeout: 2200 });
+					else window.setTimeout(startMotion, 900);
+				};
+				if (document.readyState === 'complete') scheduleMotion();
+				else window.addEventListener('load', scheduleMotion, { once: true });
+			}
+			const menu = document.querySelector('[data-menu-overlay]');
+			const menuButton = document.querySelector('.menu-trigger');
+			const closeMenu = () => { menu?.classList.remove('is-open'); menu?.setAttribute('aria-hidden', 'true'); menu?.setAttribute('inert', ''); menuButton?.focus(); };
+			menuButton?.addEventListener('click', () => { menu?.classList.add('is-open'); menu?.setAttribute('aria-hidden', 'false'); menu?.removeAttribute('inert'); menu?.querySelector('a')?.focus(); });
+			menu?.querySelector('[data-menu-close]')?.addEventListener('click', closeMenu);
+			menu?.querySelectorAll('[data-menu-link]').forEach((link) => link.addEventListener('click', closeMenu));
+			document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+			const customCursor = document.querySelector('[data-custom-cursor]');
+			if (customCursor && window.matchMedia('(pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+				let cursorX = 0;
+				let cursorY = 0;
+				let targetX = 0;
+				let targetY = 0;
+				const moveCursor = (event) => { targetX = event.clientX; targetY = event.clientY; customCursor.classList.add('is-visible'); };
+				const updateCursor = () => {
+					cursorX += (targetX - cursorX) * .16;
+					cursorY += (targetY - cursorY) * .16;
+					customCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+				};
+				window.addEventListener('pointermove', moveCursor, { passive: true });
+				document.querySelectorAll('a, button, .hero-problem-row, .capability-editorial-row').forEach((element) => {
+					element.addEventListener('pointerenter', () => customCursor.classList.add('is-hovering'));
+					element.addEventListener('pointerleave', () => customCursor.classList.remove('is-hovering'));
+				});
+				window.addEventListener('helix-tick', updateCursor);
+			}
+
+			const translations = {
+				en: { navSolutions: 'What we solve', navProcess: 'How we work', navCases: 'Cases', navCta: 'Let’s talk', heroVisual: 'Operations have a shape. We find it with you.', heroStatement: 'Close engineering for specific operational problems.', heroSupport: 'We connect your systems, data and AI inside delivery. No generic solution pitch.', heroCtaText: 'The opportunity is solving better.', heroCta: 'Scope your project ↗', solutionsTitle: 'What we unlock', solutionsIntro: 'When work depends on five systems, three spreadsheets and too many messages, the problem is not a missing app. It is the missing connection between what you already have.', capabilityLead: 'Less friction. More control.', capabilitySub: 'We work where strategy becomes operations: decisions, exceptions and the next move.', capabilityCta: 'Tell us where it gets stuck →', industryTitle: 'Where we know the terrain', industryIntro: 'We do not start with technology. We start with the shift that does not add up, the order that gets lost and the customer waiting for an answer.', processTitle: 'From problem to change.', processIntro: 'Every project starts with a conversation about the real workflow. We choose the collaboration model that keeps context and delivers value early.', step1Title: 'Understand', step1Text: 'Map decisions, systems, data and exceptions.', step2Title: 'Focus', step2Text: 'Choose a first improvement that can be tested and used.', step3Title: 'Build', step3Text: 'Design, integrate and deliver alongside your team.', step4Title: 'Learn', step4Text: 'Measure what changed and choose the next cycle.', casesTitle: 'Work that still needs a name.', casesIntro: 'These cases are the site’s proof structure. Real details go here when you have them.', teamTitle: 'Close enough to move.', teamIntro: 'A bilingual team in Colombia, aligned with US time zones and with enough context to talk operations, not just deliverables.', stackTitle: 'We build with judgment:', contactTitle: 'Let’s talk about the problem.', contactIntro: 'Tell us which part of your operation needs clarity. We will answer with useful questions, not a prefabricated deck.', contactButton: 'Request a conversation ↗', footerBack: 'Back to top ↑' }
+			};
+			const setLanguage = (language) => { document.documentElement.lang = language; document.querySelectorAll('[data-lang]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lang === language))); document.querySelectorAll('[data-i18n], [data-en]').forEach((node) => { const key = node.dataset.i18n; if (language === 'en') node.dataset.es ||= node instanceof HTMLInputElement ? node.placeholder : node.textContent; const value = language === 'es' ? node.dataset.es : node.dataset.en || translations.en[key]; if (!value) return; if (node instanceof HTMLInputElement) node.placeholder = value; else node.textContent = value; }); };
+			document.querySelectorAll('[data-lang]').forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
+			document.querySelector('[data-contact-form]')?.addEventListener('submit', (event) => { event.preventDefault(); const status = document.querySelector('[data-form-status]'); if (status) status.innerHTML = '<strong>Gracias.</strong> <span class="placeholder-note">[PLACEHOLDER: conecta aquí tu agenda o endpoint de contacto]</span>'; });
+			const colombiaTime = document.querySelector('[data-colombia-time]');
+			const updateColombiaTime = () => { if (colombiaTime) colombiaTime.textContent = `Bogotá ${new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date())}`; };
+			updateColombiaTime();
+			window.setInterval(updateColombiaTime, 60000);
+		</script>
+	</body>
+</html>
