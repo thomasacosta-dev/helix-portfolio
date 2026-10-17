@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import HelixScene from '../components/HelixScene.astro';
+import GlobeScene from '../components/GlobeScene.astro';
 
 const capabilities = [
 	{ title: 'Automatización', text: 'Conectamos herramientas y eliminamos pasos manuales que frenan la operación.', terms: 'Integraciones · Workflows · IA aplicada' },
@@ -39,7 +40,17 @@ const team = [
 	['[PLACEHOLDER] Nombre del equipo', 'Nearshore partner'],
 ];
 
-const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conectamos lo que ya existe para que tu equipo pueda decidir, avanzar y aprender con más claridad.'.split(' ');
+const manifestoText = 'Trabajamos donde la operación se vuelve compleja. Conectamos lo que ya existe para que tu equipo pueda decidir, avanzar y aprender con más claridad.';
+const manifestoWords = manifestoText.split(' ');
+const sharedHoursDestinations = [
+	['Miami', 'America/New_York'],
+	['Nueva York', 'America/New_York'],
+	['Ciudad de México', 'America/Mexico_City'],
+	['Toronto', 'America/Toronto'],
+	['Madrid', 'Europe/Madrid'],
+	['Londres', 'Europe/London'],
+	['Santiago', 'America/Santiago'],
+];
 ---
 
 <html lang="es">
@@ -60,7 +71,7 @@ const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conec
 	<body class="editorial-phase-one editorial-phase-two">
 		<div class="preloader" data-preloader role="status" aria-live="polite">
 			<div class="preloader-brand"><img src="/helix-emblem.png" width="72" height="72" alt="Emblema HELIX" /><span>H E L I X</span></div>
-			<p class="preloader-caption">Ingeniería cercana</p>
+			<p class="preloader-caption"><strong>GCS</strong><span>Ingeniería cercana</span></p>
 			<div class="preloader-track"><span></span></div>
 			<strong class="preloader-counter" data-preloader-counter>0%</strong>
 			<button class="preloader-skip" type="button" data-preloader-skip>Skip intro</button>
@@ -69,17 +80,23 @@ const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conec
 		<div class="page-shell">
 			<section class="hero-screen" id="top" aria-labelledby="hero-title">
 				<header class="site-header reveal" style="--delay: 0ms">
-					<a class="brand-lockup" href="#top" aria-label="HELIX, inicio"><img src="/helix-emblem.png" width="32" height="32" alt="" /><span>H E L I X</span></a>
+					<a class="brand-lockup" href="/" aria-label="HELIX, inicio"><img src="/helix-emblem.png" width="32" height="32" alt="" /><span>HELIX</span></a>
+					<nav class="header-nav" aria-label="Navegación principal">
+						<a class="nav-link" href="#soluciones" data-es="Qué resolvemos" data-en="What we solve">Qué resolvemos</a>
+						<a class="nav-link" href="#proceso" data-es="Cómo trabajamos" data-en="How we work">Cómo trabajamos</a>
+						<a class="nav-link" href="#casos" data-es="Casos" data-en="Cases">Casos</a>
+					</nav>
 					<span class="header-context">(Ingeniería operativa)</span>
+					<a class="header-cta" href="#contacto"><span aria-hidden="true"></span><span data-es="Hablemos" data-en="Let’s talk">Hablemos</span></a>
 					<button class="menu-trigger" type="button" aria-label="Abrir menú">(Menú)</button>
 				</header>
 				<aside class="menu-overlay" data-menu-overlay aria-hidden="true" inert>
 					<button class="menu-close" type="button" data-menu-close aria-label="Cerrar menú">Cerrar ×</button>
 					<nav aria-label="Menú principal">
-						<a href="#soluciones" data-menu-link>Qué resolvemos <span>↗</span></a>
-						<a href="#proceso" data-menu-link>Cómo trabajamos <span>↗</span></a>
-						<a href="#casos" data-menu-link>Casos <span>↗</span></a>
-						<a href="#contacto" data-menu-link>Hablemos <span>↗</span></a>
+						<a class="nav-link" href="#soluciones" data-menu-link data-es="Qué resolvemos" data-en="What we solve">Qué resolvemos <span>↗</span></a>
+						<a class="nav-link" href="#proceso" data-menu-link data-es="Cómo trabajamos" data-en="How we work">Cómo trabajamos <span>↗</span></a>
+						<a class="nav-link" href="#casos" data-menu-link data-es="Casos" data-en="Cases">Casos <span>↗</span></a>
+						<a class="nav-link" href="#contacto" data-menu-link data-es="Hablemos" data-en="Let’s talk">Hablemos <span>↗</span></a>
 					</nav>
 				</aside>
 
@@ -107,7 +124,7 @@ const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conec
 					</div>
 				</div>
 
-				<div class="editorial-marquee" aria-hidden="true"><span>HELIX · INGENIERÍA CERCANA · SISTEMAS · DATOS · PERSONAS · </span><span>HELIX · INGENIERÍA CERCANA · SISTEMAS · DATOS · PERSONAS · </span></div>
+				<div class="editorial-marquee" aria-hidden="true"><span>HELIX · INGENIERÍA OPERATIVA · </span><span>HELIX · INGENIERÍA OPERATIVA · </span></div>
 			</section>
 
 			<main>
@@ -122,16 +139,30 @@ const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conec
 						<div class="manifesto-rule"></div>
 					</div>
 					<div class="manifesto-main">
-						<p id="manifesto-title" class="manifesto-copy" data-manifesto>{manifestoWords.map((word) => <span>{word}</span>)}</p>
+						<p id="manifesto-title" class="manifesto-copy" data-manifesto aria-label={manifestoText}>{manifestoWords.map((word, index) => [<span class="word" aria-hidden="true">{word}</span>, index < manifestoWords.length - 1 ? ' ' : ''])}</p>
 						<p class="manifesto-secondary" data-es="Un solo equipo, de la primera conversación a la entrega. Siempre sabes quién diseña, quién desarrolla y quién responde." data-en="One team, from the first conversation to delivery. You always know who designs, who builds and who responds.">Un solo equipo, de la primera conversación a la entrega. Siempre sabes quién diseña, quién desarrolla y quién responde.</p>
 					</div>
 				</section>
 
-				<section class="section capabilities-section" id="soluciones" aria-labelledby="solutions-title">
-					<div class="section-heading reveal"><h2 id="solutions-title" data-es="Conectamos lo que ya tienes" data-en="We connect what you have">Conectamos lo que ya tienes</h2><p data-es="Tu operación no necesita otra herramienta aislada. Necesita que los sistemas hablen entre sí y que tu equipo vea qué hacer después." data-en="Your operation does not need another isolated tool. It needs systems that talk to each other and a team that can see what comes next.">Tu operación no necesita otra herramienta aislada. Necesita que los sistemas hablen entre sí y que tu equipo vea qué hacer después.</p></div>
-					<div class="capability-editorial-list">
-						{capabilities.map((item, index) => <a class="capability-editorial-row reveal" href="#contacto" style={`--delay: ${index * 70}ms`} data-helix-state={index}><span class="capability-number">0{index + 1}</span><strong data-es={item.title} data-en={capabilitiesEn[index].title}>{item.title}</strong><span class="capability-detail" data-es={item.text} data-en={capabilitiesEn[index].text}>{item.text}</span><span class="capability-terms" data-es={item.terms} data-en={index === 0 ? 'Integrations · Workflows · Applied AI' : index === 1 ? 'Dashboards · Alerts · Traceability' : index === 2 ? 'Web apps · APIs · Internal systems' : 'Nearshoring · Discovery · Delivery'}>{item.terms}</span><b aria-hidden="true">↗</b></a>)}
+				<section class="section locations-section" id="soluciones" aria-labelledby="locations-title">
+					<div class="locations-copy">
+						<em>(Dónde trabajamos)</em>
+						<h2 id="locations-title"><span>COLOMBIA,</span><em>en tu zona horaria.</em></h2>
+						<p data-es="Un equipo bilingüe que trabaja en horario de Norteamérica y se conecta con tu operación donde esté." data-en="A bilingual team working North American hours, connecting with your operation wherever it is.">Un equipo bilingüe que trabaja en horario de Norteamérica y se conecta con tu operación donde esté.</p>
+						<section class="shared-hours" aria-labelledby="shared-hours-title">
+							<h3 id="shared-hours-title">(Horas compartidas con Colombia)</h3>
+							<div class="shared-hours-list" data-shared-hours-list role="list" aria-label="Horas compartidas con Colombia">
+								{sharedHoursDestinations.map(([name, timeZone]) => (
+									<div class="shared-hours-row" data-shared-hours-row data-destination-name={name} data-time-zone={timeZone} role="listitem" tabindex="0" aria-label={`${name}: calculando horas compartidas con Colombia`}>
+										<div class="shared-hours-meta"><strong>{name}</strong><span data-hours-summary>Calculando</span></div>
+										<div class="shared-hours-strip" data-hours-strip aria-hidden="true"></div>
+									</div>
+								))}
+								<div class="shared-hours-scale" aria-hidden="true"><span>6</span><span>12</span><span>18</span></div>
+							</div>
+						</section>
 					</div>
+					<GlobeScene />
 				</section>
 
 				<section class="section industries-section" id="industrias" aria-labelledby="industry-title">
@@ -173,7 +204,7 @@ const manifestoWords = 'Trabajamos donde la operación se vuelve compleja. Conec
 				</section>
 			</main>
 
-			<footer class="site-footer"><span>HELIX · Colombia</span><span class="colombia-time" data-colombia-time aria-label="Hora de Colombia"></span><a href="#top" data-i18n="footerBack">Volver arriba ↑</a><div class="language-switcher" aria-label="Selector de idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></footer>
+			<footer class="site-footer"><a class="brand-lockup" href="/" aria-label="HELIX, inicio"><img src="/helix-emblem.png" width="32" height="32" alt="" /><span>HELIX</span></a><span>HELIX · Colombia</span><span class="colombia-time" data-colombia-time aria-label="Hora de Colombia"></span><a href="#top" data-i18n="footerBack">Volver arriba ↑</a><div class="language-switcher" aria-label="Selector de idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></footer>
 		</div>
 
 		<script>

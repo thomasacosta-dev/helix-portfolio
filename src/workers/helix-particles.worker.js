@@ -3,7 +3,7 @@ const random = (seed) => {
 	return value - Math.floor(value);
 };
 
-const createLogo3D = async (count, emblemUrl) => {
+const createLogo3D = async (count, emblemUrl, depth = 0.5) => {
 	try {
 		const response = await fetch(emblemUrl);
 		const bitmap = await createImageBitmap(await response.blob());
@@ -109,13 +109,13 @@ const createLogo3D = async (count, emblemUrl) => {
 				// Crossing ribbons offset in Z
 				let zCross = 0;
 				if (!isSym && y > 220 && y < 440) {
-					if (x < cx + 40 && y < 330) zCross = 0.22;
-					else if (x > cx - 40 && y >= 330) zCross = -0.22;
+					if (x < cx + 40 && y < 330) zCross = depth * 0.42;
+					else if (x > cx - 40 && y >= 330) zCross = -depth * 0.42;
 				}
 
 				const z = isSym
 					? (random(seed + 27) - 0.5) * 0.08
-					: (zSign * pillow * 0.38 + zCross + (random(seed + 27) - 0.5) * 0.05);
+					: (zSign * (depth * 0.5) * (0.58 + pillow * 0.42) + zCross + (random(seed + 27) - 0.5) * depth * 0.08);
 
 				// Sample real pixel RGB from emblem PNG
 				const piX = Math.max(0, Math.min(W - 1, Math.round(x)));
@@ -128,7 +128,7 @@ const createLogo3D = async (count, emblemUrl) => {
 				// World coordinates: centered at (0, 0, 0)
 				const wx = (x - cx) * scale;
 				const wy = (cy - y) * scale;
-				const wz = z * scale * 14.0;
+				const wz = z;
 
 				logo[pIndex * 3]     = wx;
 				logo[pIndex * 3 + 1] = wy;
@@ -154,7 +154,7 @@ const createLogo3D = async (count, emblemUrl) => {
 	}
 };
 
-self.onmessage = async ({ data: { count, emblemUrl } }) => {
+self.onmessage = async ({ data: { count, emblemUrl, depth } }) => {
 	const start = new Float32Array(count * 3);
 	const randomValues = new Float32Array(count);
 
@@ -169,7 +169,7 @@ self.onmessage = async ({ data: { count, emblemUrl } }) => {
 		randomValues[index]  = random(seed + 4);
 	}
 
-	const { logo, colors } = await createLogo3D(count, emblemUrl);
+	const { logo, colors } = await createLogo3D(count, emblemUrl, depth);
 
 	self.postMessage(
 		{ start, logo, random: randomValues, color: colors },

@@ -13,15 +13,25 @@
 		DELAY_SPREAD:     0.40,  // per-particle random delay fraction
 		DRIFT_SPEED:      0.10,  // swarm ambient drift speed multiplier
 		TURBULENCE:       0.12,  // max mid-path turbulence in world units
-		ROTATION_AMP:     18,    // yaw oscillation amplitude in degrees (±18°)
+		DEPTH:            0.50,   // total ribbon thickness in world units
+		LIGHT_DIR:        [0.35, 0.55, 1.0],
+		RIM_STRENGTH:     0.34,
+		SPEC_STRENGTH:    0.42,
+		FOV:              50,
+		ROT_YAW:          35,     // yaw oscillation amplitude in degrees (±35°)
 		ROTATION_PERIOD:  14,    // yaw oscillation period in seconds
 		CURSOR_YAW:       8,     // cursor yaw influence in degrees (±8°)
+		ROT_PITCH:        8,     // pitch oscillation amplitude in degrees (±8°)
 		CURSOR_PITCH:     5,     // cursor pitch influence in degrees (±5°)
 		SCROLL_LERP:      0.04,  // scroll progress lerp factor
 		PARTICLE_OPACITY: 0.95,  // vivid base opacity for bright brand appearance
 		POINT_SIZE:       2.1,   // readable point size for crisp logo definition
 		TEXT_OPACITY:     0.30,  // particle opacity multiplier inside text block rect
 		OFFSET_X:         1.95,  // center position of logo in right column
+		LOGO_OFFSET_X:    1,
+		LOGO_OFFSET_Y:    0.62,
+		LOGO_SCALE:       0.82,
+		LOGO_DIM_ON_MANIFEST: 0.55,
 		CANVAS_OPACITY:   1.0,   // canvas element opacity when fully visible
 	};
 	// ─────────────────────────────────────────────────────────────────────
@@ -44,7 +54,7 @@
 			{ type: 'module' },
 		);
 		const count = window.innerWidth < 1100 ? 6000 : 14000;
-		worker.postMessage({ count, emblemUrl: '/helix-emblem.png' });
+		worker.postMessage({ count, emblemUrl: '/helix-emblem.png', depth: CONFIG.DEPTH });
 
 		const particleData = await new Promise((resolve, reject) => {
 			worker.addEventListener('message', (e) => resolve(e.data), { once: true });
@@ -61,12 +71,12 @@
 		renderer.setClearColor(0x000000, 0);
 		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
-		// Promote canvas to full viewport fixed layer
+		// Promote canvas to a full viewport fixed layer.
 		sceneRoot.classList.add('is-full-viewport');
 
 		// Camera
-		const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 200);
-		camera.position.set(0, 0, 8.8);
+		const camera = new THREE.PerspectiveCamera(CONFIG.FOV, window.innerWidth / window.innerHeight, 0.1, 200);
+		camera.position.set(0, 0, 6.8);
 
 		// Scene & BufferGeometry
 		const scene = new THREE.Scene();
@@ -86,6 +96,9 @@
 		const PO     = CONFIG.PARTICLE_OPACITY.toFixed(4);
 		const PS     = CONFIG.POINT_SIZE.toFixed(4);
 		const TO     = CONFIG.TEXT_OPACITY.toFixed(4);
+		const LIGHT  = `vec3(${CONFIG.LIGHT_DIR.join(',')})`;
+		const RIM    = CONFIG.RIM_STRENGTH.toFixed(4);
+		const SPEC   = CONFIG.SPEC_STRENGTH.toFixed(4);
 
 		const material = new THREE.ShaderMaterial({
 			uniforms: {
@@ -94,6 +107,7 @@
 				uTime:     { value: 0 },
 				uMouse:    { value: new THREE.Vector3() },
 				uTextRect: { value: uTextRect },
+				uLogoOpacity: { value: 1 },
 			},
 			vertexShader: [
 				'attribute vec3  aStart;',
@@ -105,6 +119,9 @@
 				'uniform float uTime;',
 				'uniform vec3  uMouse;',
 				'varying vec3  vColor;',
+				'varying float vDepth;',
+				'varying float vLight;',
+				'varying float vSpecular;',
 				'float smootherstep(float e0, float e1, float x) {',
 				'  float t = clamp((x - e0) / (e1 - e0), 0.0, 1.0);',
 				'  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);',
@@ -120,6 +137,13 @@
 				'  float turb    = noiseA * noiseB * turbEnv * ' + TURB + ';',
 				'  vec3 formed   = mix(aStart, aLogo, delayed);',
 				'  formed += vec3(turb, turb * 0.65, -turb * 0.8);',
+				'  float profile = clamp((formed.z + ' + CONFIG.DEPTH.toFixed(4) + ') / ' + (CONFIG.DEPTH * 2).toFixed(4) + ', 0.0, 1.0);',
+				'  vec3 normal = normalize(vec3(sin(formed.x * 1.7), cos(formed.y * 1.15), 1.25 + profile));',
+				'  vec3 lightDir = normalize(' + LIGHT + ');',
+				'  vec3 viewDir = vec3(0.0, 0.0, 1.0);',
+				'  float diffuse = 0.46 + max(dot(normal, lightDir), 0.0) * 0.54;',
+				'  float rim = pow(1.0 - max(dot(normal, viewDir), 0.0), 2.0) * ' + RIM + ';',
+				'  float specular = pow(max(dot(reflect(-lightDir, normal), viewDir), 0.0), 18.0) * ' + SPEC + ';',
 				'  vec3  toMouse = formed - uMouse;',
 				'  float dist    = length(toMouse);',
 				'  float repel   = smoothstep(0.35, 0.0, dist) * 0.04;',
@@ -127,13 +151,21 @@
 				'  vec3 displaced = formed + normalize(formed - uMouse + vec3(0.001)) * uDisperse * (0.15 + aRand * 0.35);',
 				'  vec4 mv = modelViewMatrix * vec4(displaced, 1.0);',
 				'  gl_Position  = projectionMatrix * mv;',
-				'  gl_PointSize = (' + PS + ' + aRand * 0.8) * (7.2 / -mv.z);',
-				'  vColor = aColor;',
+				'  float distanceScale = clamp(10.0 / max(-mv.z, 1.0), 0.55, 1.9);',
+				'  gl_PointSize = (' + PS + ' + aRand * 0.8) * distanceScale;',
+				'  vDepth = profile;',
+				'  vLight = diffuse + rim;',
+				'  vSpecular = specular;',
+				'  vColor = mix(aColor, vec3(1.0), specular * 0.32);',
 				'}',
 			].join('\n'),
 			fragmentShader: [
 				'varying vec3 vColor;',
+				'varying float vDepth;',
+				'varying float vLight;',
+				'varying float vSpecular;',
 				'uniform vec4 uTextRect;',
+				'uniform float uLogoOpacity;',
 				'void main() {',
 				'  float d = distance(gl_PointCoord, vec2(0.5));',
 				'  float alpha = smoothstep(0.5, 0.02, d) * ' + PO + ';',
@@ -142,8 +174,10 @@
 				'              * step(gl_FragCoord.x, uTextRect.x + uTextRect.z)',
 				'              * step(uTextRect.y, gl_FragCoord.y)',
 				'              * step(gl_FragCoord.y, uTextRect.y + uTextRect.w);',
+				'  alpha *= mix(0.45, 1.0, smoothstep(0.0, 1.0, vDepth));',
 				'  alpha *= mix(1.0, ' + TO + ', inBox);',
-				'  gl_FragColor = vec4(vColor, alpha);',
+				'  vec3 litColor = vColor * vLight + vec3(vSpecular);',
+				'  gl_FragColor = vec4(litColor, alpha * uLogoOpacity);',
 				'}',
 			].join('\n'),
 			transparent: true,
@@ -154,8 +188,11 @@
 		const particles = new THREE.Points(geo, material);
 		// Face front to camera at rest; position in right column
 		particles.rotation.set(0, 0, 0);
-		particles.position.x = CONFIG.OFFSET_X;
+		particles.position.x = CONFIG.OFFSET_X + CONFIG.LOGO_OFFSET_X;
+		particles.position.y = CONFIG.LOGO_OFFSET_Y;
+		particles.scale.setScalar(CONFIG.LOGO_SCALE);
 		scene.add(particles);
+
 
 		// Tight text bounding box for uTextRect
 		const headlineBlock = document.querySelector('.hero-stage h1');
@@ -177,15 +214,30 @@
 
 		// Resize handler
 		const resize = () => {
-			camera.aspect = window.innerWidth / window.innerHeight;
+			const width = Math.max(1, document.documentElement.clientWidth);
+			const height = Math.max(1, window.innerHeight);
+			camera.aspect = width / height;
 			camera.updateProjectionMatrix();
-			renderer.setSize(window.innerWidth, window.innerHeight, false);
+			renderer.setSize(width, height, false);
 			updateTextRect();
+			if (!resize.logged) {
+				resize.logged = true;
+				console.info('[HelixScene] viewport', {
+					canvas: canvas.getBoundingClientRect().toJSON(),
+					canvasWidth: canvas.width,
+					canvasHeight: canvas.height,
+					rendererSize: renderer.getSize(new THREE.Vector2()).toArray(),
+					inner: [window.innerWidth, window.innerHeight],
+					clientWidth: document.documentElement.clientWidth,
+				});
+			}
 		};
 		resize();
+		const resizeObserver = new ResizeObserver(resize);
+		resizeObserver.observe(document.documentElement);
 
 		// State & loop variables
-		const heroStage = document.querySelector('.hero-stage');
+		const heroStage = document.querySelector('.hero-screen');
 		let rawScroll    = 0;
 		let smoothScroll = 0;
 		let pointerX     = 0;
@@ -207,6 +259,13 @@
 				resume();
 			}
 		};
+		const updateManifestDim = () => {
+			const manifesto = document.querySelector('.editorial-manifesto');
+			if (!manifesto) return;
+			const rect = manifesto.getBoundingClientRect();
+			const centerVisible = rect.top < window.innerHeight * .62 && rect.bottom > window.innerHeight * .38;
+			material.uniforms.uLogoOpacity.value = centerVisible ? CONFIG.LOGO_DIM_ON_MANIFEST : 1;
+		};
 
 		const updatePointer = (e) => {
 			pointerX = (e.clientX / window.innerWidth  - 0.5) * 2;
@@ -222,21 +281,30 @@
 			const elapsed = time - startTime;
 
 			smoothScroll += (rawScroll - smoothScroll) * CONFIG.SCROLL_LERP;
-
 			material.uniforms.uTime.value     = time;
 			material.uniforms.uProgress.value = Math.min(1, elapsed / CONFIG.FORM_DURATION);
 			// Dispersion strictly 0 at rest in hero
 			material.uniforms.uDisperse.value = smoothScroll * 0.45;
+			updateManifestDim();
+			if (heroStage && canvas) {
+				const heroRect = heroStage.getBoundingClientRect();
+				const heroVisible = window.scrollY < 40 && heroRect.bottom > 0;
+				canvas.style.opacity = heroVisible ? String(CONFIG.CANVAS_OPACITY) : '0';
+			}
 
 			// Natural yaw oscillation ±18° + cursor influence ±8°
 			const yawOscillation = Math.sin((time * 2 * Math.PI) / CONFIG.ROTATION_PERIOD)
-			                       * (CONFIG.ROTATION_AMP * Math.PI / 180);
-			const yawTarget = yawOscillation + pointerX * (CONFIG.CURSOR_YAW * Math.PI / 180) + focusIndex * 0.03;
+			                       * (CONFIG.ROT_YAW * Math.PI / 180);
+			const yawOverride = Number.isFinite(window.__HELIX_YAW_OVERRIDE__)
+				? window.__HELIX_YAW_OVERRIDE__ * Math.PI / 180
+				: null;
+			const yawTarget = (yawOverride ?? yawOscillation) + pointerX * (CONFIG.CURSOR_YAW * Math.PI / 180) + focusIndex * 0.03;
 			yawCurrent += (yawTarget - yawCurrent) * 0.03;
 			particles.rotation.y = yawCurrent;
 
 			// Subtle pitch ±5° with cursor
-			const pitchTarget = -pointerY * (CONFIG.CURSOR_PITCH * Math.PI / 180);
+			const pitchTarget = (Math.sin((time * 2 * Math.PI) / CONFIG.ROTATION_PERIOD + Math.PI / 2)
+				* CONFIG.ROT_PITCH * Math.PI / 180) - pointerY * (CONFIG.CURSOR_PITCH * Math.PI / 180);
 			pitchCurrent += (pitchTarget - pitchCurrent) * 0.03;
 			particles.rotation.x = pitchCurrent;
 
@@ -292,6 +360,7 @@
 		);
 		if (heroStage) heroObserver.observe(heroStage);
 
+
 		const contact = document.querySelector('#contacto');
 		const contactObserver = contact
 			? new IntersectionObserver(
@@ -329,17 +398,22 @@
 
 		window.__HELIX_READY__ = true;
 		window.__HELIX_CONFIG__ = CONFIG;
+		window.__HELIX_SET_YAW__ = (degrees) => { window.__HELIX_YAW_OVERRIDE__ = degrees; };
 
 		window.addEventListener('pagehide', () => {
 			worker.terminate();
 			heroObserver.disconnect();
 			contactObserver?.disconnect();
+			resizeObserver.disconnect();
 			if (rafId) cancelAnimationFrame(rafId);
 		}, { once: true });
 	};
 
 	if (sceneRoot && canvas && !reducedMotion && !mobileDevice && !!window.WebGLRenderingContext) {
-		const start = () => initScene().catch(() => sceneRoot.classList.add('helix-static'));
+		const start = () => initScene().catch((error) => {
+			console.error('[HELIX] particle scene failed to initialize', error);
+			sceneRoot.classList.add('helix-static');
+		});
 		const visibilityObserver = new IntersectionObserver(
 			([entry]) => {
 				if (!entry.isIntersecting) return;

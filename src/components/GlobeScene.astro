@@ -1,0 +1,304 @@
+<div class="globe-scene" data-globe-scene aria-label="Mapa de puntos que conecta Colombia con Norteamérica, Europa y Sudamérica" role="img">
+	<canvas class="globe-canvas" data-globe-canvas aria-hidden="true"></canvas>
+	<img class="globe-fallback" src="/data/globe-static.svg" alt="" aria-hidden="true" />
+	<svg class="globe-arcs-fallback" viewBox="0 0 560 560" aria-hidden="true">
+		<defs><linearGradient id="globe-arc-gradient" x1="0" x2="1"><stop stop-color="#00d4ff" /><stop offset="1" stop-color="#a24bff" /></linearGradient></defs>
+		<path d="M205 302 Q195 235 220 185 M205 302 Q215 210 250 155 M205 302 Q245 190 290 145 M205 302 Q285 115 360 150 M205 302 Q250 260 275 265 M205 302 Q290 355 340 385 M205 302 Q360 330 420 350" />
+	</svg>
+	<div class="globe-origin-label" data-globe-origin-label><span></span>EN LÍNEA · COLOMBIA</div>
+</div>
+
+<script>
+	const CONFIG = {
+		ORIGIN: { name: 'Bogotá', lat: 4.71, lon: -74.07 },
+		DESTINATIONS: [
+			{ name: 'Miami', lat: 25.76, lon: -80.19, timeZone: 'America/New_York' }, { name: 'Nueva York', lat: 40.71, lon: -74.01, timeZone: 'America/New_York' },
+			{ name: 'Ciudad de México', lat: 19.43, lon: -99.13, timeZone: 'America/Mexico_City' }, { name: 'Toronto', lat: 43.65, lon: -79.38, timeZone: 'America/Toronto' },
+			{ name: 'Madrid', lat: 40.42, lon: -3.70, timeZone: 'Europe/Madrid' }, { name: 'Londres', lat: 51.51, lon: -0.13, timeZone: 'Europe/London' },
+			{ name: 'Santiago', lat: -33.45, lon: -70.67, timeZone: 'America/Santiago' },
+		],
+		WORK_START: 9, WORK_END: 17, ORIGIN_TIME_ZONE: 'America/Bogota',
+		POINT_COUNT: 18000, MOBILE_POINT_COUNT: 5500, ROTATION_SPEED: 0.055,
+		ARC_HEIGHT: 0.22, ARC_DURATION: 9, PULSE_SPEED: 0.65, BACK_OPACITY: 0.25, FRONT_OPACITY: 0.85,
+		GLOW_INTENSITY: 1.12, HALO_RATIO: 0.25, HALO_SIZE: 2.2, HALO_OPACITY: 0.06,
+		FRESNEL_POWER: 2.2, RIM_STRENGTH: 1.25, LANDING_FLASH: 2.2,
+		FORM_DURATION: 3.2, SWARM_TIME: 1.2, TWINKLE_RATIO: 0.08,
+		DEST_COLOR: '#FF3B5C', DEST_DOT_SIZE: .08, DEST_RING_PERIOD: 1.6, DEST_BLINK_PERIOD: 1.1,
+		REPEATS: 1.6, FLOW_SPEED: 0.10, ARC_DRAW_DURATION: 1.8, ARC_STAGGER: .4, HEAD_SIZE: .08, ARC_OPACITY: .75, HOVER_DIM_OPACITY: .85,
+		GLOBE_SCALE: .7,
+		SCROLL_FORM_START: .92,
+		SCROLL_FORM_END: 0,
+	};
+	const root = document.querySelector('[data-globe-scene]');
+	const canvas = root?.querySelector('[data-globe-canvas]');
+	const fallback = root?.querySelector('.globe-fallback');
+	const fallbackArcs = root?.querySelector('.globe-arcs-fallback');
+	const originLabel = root?.querySelector('[data-globe-origin-label]');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const coarse = window.matchMedia('(pointer: coarse)').matches;
+	let cleanup = null;
+	const section = root?.closest('.locations-section') || root?.parentElement;
+	const sharedHoursList = document.querySelector('[data-shared-hours-list]');
+	const sharedRows = sharedHoursList ? [...sharedHoursList.querySelectorAll('[data-shared-hours-row]')] : [];
+	const offsetMinutesAt = (timeZone, instant) => {
+		const parts = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'shortOffset' }).formatToParts(instant);
+		const value = parts.find((part) => part.type === 'timeZoneName')?.value || 'GMT';
+		const match = value.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+		if (!match) return 0;
+		return (match[1] === '-' ? -1 : 1) * (Number(match[2]) * 60 + Number(match[3] || 0));
+	};
+	const zonedParts = (timeZone, instant) => {
+		const parts = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(instant);
+		return Object.fromEntries(parts.filter(({ type }) => type !== 'literal').map(({ type, value }) => [type, Number(value)]));
+	};
+	const localWorkInterval = (timeZone, now) => {
+		const parts = zonedParts(timeZone, now);
+		const localDate = Date.UTC(parts.year, parts.month - 1, parts.day);
+		const makeBoundary = (hour) => {
+			const candidate = new Date(localDate + hour * 60 * 60 * 1000);
+			return candidate.getTime() - offsetMinutesAt(timeZone, candidate) * 60 * 1000;
+		};
+		return { start: makeBoundary(CONFIG.WORK_START), end: makeBoundary(CONFIG.WORK_END), offset: offsetMinutesAt(timeZone, now), localDate };
+	};
+	const formatOffset = (minutes) => {
+		const sign = minutes < 0 ? '−' : '+';
+		const absolute = Math.abs(minutes);
+		const hours = Math.floor(absolute / 60);
+		const remainder = absolute % 60;
+		return `UTC${sign}${hours}${remainder ? `:${String(remainder).padStart(2, '0')}` : ''}`;
+	};
+	const calculateSharedHours = (destination, now = new Date()) => {
+		const originInterval = localWorkInterval(CONFIG.ORIGIN_TIME_ZONE, now);
+		const destinationInterval = localWorkInterval(destination.timeZone, now);
+		const overlap = Math.max(0, Math.min(originInterval.end, destinationInterval.end) - Math.max(originInterval.start, destinationInterval.start)) / 3600000;
+		const rounded = Math.round(overlap * 2) / 2;
+		const colombiaMidnight = originInterval.localDate;
+		const destinationStart = (destinationInterval.start - colombiaMidnight) / 3600000;
+		const destinationEnd = (destinationInterval.end - colombiaMidnight) / 3600000;
+		return { hours: rounded, originOffset: originInterval.offset, destinationOffset: destinationInterval.offset, destinationStart, destinationEnd, currentHour: (now.getTime() - colombiaMidnight) / 3600000 };
+	};
+	const renderSharedHours = () => {
+		if (!sharedHoursList) return;
+		const computed = sharedRows.map((row) => {
+			const destination = CONFIG.DESTINATIONS.find(({ name }) => name === row.dataset.destinationName);
+			if (!destination) return { row, hours: 0 };
+			const result = calculateSharedHours(destination);
+			const strip = row.querySelector('[data-hours-strip]');
+			if (strip) {
+				strip.innerHTML = '';
+				for (let hour = 0; hour < 24; hour += 1) {
+					const segment = document.createElement('span');
+					const midpoint = hour + .5;
+					const destinationWorking = midpoint >= result.destinationStart && midpoint < result.destinationEnd;
+					const colombiaWorking = hour >= CONFIG.WORK_START && hour < CONFIG.WORK_END;
+					segment.className = `shared-hours-segment${colombiaWorking ? ' is-origin' : ''}${destinationWorking ? ' is-destination' : ''}${colombiaWorking && destinationWorking ? ' is-overlap' : ''}`;
+					strip.append(segment);
+				}
+				const marker = document.createElement('i');
+				marker.className = 'shared-hours-now';
+				marker.style.setProperty('--current-hour', `${Math.max(0, Math.min(24, result.currentHour))}`);
+				strip.append(marker);
+			}
+			const summary = row.querySelector('[data-hours-summary]');
+			const accessible = `${destination.name}: ${result.hours} ${result.hours === 1 ? 'hora' : 'horas'} compartidas con Colombia`;
+			if (summary) summary.textContent = `${formatOffset(result.originOffset)} / ${formatOffset(result.destinationOffset)} · ${result.hours} h compartidas`;
+			row.setAttribute('aria-label', accessible);
+			return { row, hours: result.hours };
+		});
+		computed.sort((a, b) => b.hours - a.hours);
+		computed.forEach(({ row }) => sharedHoursList.append(row));
+		console.table(computed.map(({ row, hours }) => ({ destination: row.dataset.destinationName, sharedHours: hours })));
+	};
+	renderSharedHours();
+	const vectorFor = (place, THREE) => {
+		const lat = place.lat * Math.PI / 180, lon = place.lon * Math.PI / 180;
+		return new THREE.Vector3(Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon));
+	};
+	const initGlobe = async () => {
+		if (!root || !canvas || cleanup) return;
+		const THREE = await import('three');
+		const scene = new THREE.Scene();
+		const camera = new THREE.PerspectiveCamera(32, 1, .1, 20);
+		camera.position.z = 3.8;
+		const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+		const isMobile = window.innerWidth < 700 || coarse;
+		const group = new THREE.Group(); group.rotation.y = -2.87; group.position.x = isMobile ? 0 : .62; group.scale.setScalar(CONFIG.GLOBE_SCALE); scene.add(group);
+		const positions = new Float32Array(await (await fetch('/data/globe-points.bin')).arrayBuffer());
+		const count = Math.min(isMobile ? CONFIG.MOBILE_POINT_COUNT : CONFIG.POINT_COUNT, positions.length / 3);
+		const origin = vectorFor(CONFIG.ORIGIN, THREE);
+		const targets = positions.slice(0, count * 3);
+		const formationData = await new Promise((resolve, reject) => {
+			const worker = new Worker(new URL('../workers/globe-formation.worker.js', import.meta.url), { type: 'module' });
+			worker.onmessage = ({ data }) => { worker.terminate(); resolve(data); };
+			worker.onerror = (error) => { worker.terminate(); reject(error); };
+			worker.postMessage({ positions: positions.buffer, count, origin: [origin.x, origin.y, origin.z] }, [positions.buffer]);
+		});
+		const { starts, randoms, distances } = formationData;
+		const geometry = new THREE.BufferGeometry();
+		geometry.setAttribute('position', new THREE.BufferAttribute(targets, 3));
+		geometry.setAttribute('aStart', new THREE.BufferAttribute(starts, 3));
+		geometry.setAttribute('aRand', new THREE.BufferAttribute(randoms, 1));
+		geometry.setAttribute('aDist', new THREE.BufferAttribute(distances, 1));
+		const pointMaterial = new THREE.ShaderMaterial({
+			uniforms: { uForm: { value: reducedMotion ? 1 : 0 }, uTime: { value: 0 }, uBackOpacity: { value: CONFIG.BACK_OPACITY }, uFrontOpacity: { value: CONFIG.FRONT_OPACITY }, uGlow: { value: CONFIG.GLOW_INTENSITY }, uFresnelPower: { value: CONFIG.FRESNEL_POWER }, uRimStrength: { value: CONFIG.RIM_STRENGTH }, uLandingFlash: { value: CONFIG.LANDING_FLASH } },
+			vertexShader: 'attribute vec3 aStart;attribute float aRand;attribute float aDist;uniform float uForm;uniform float uTime;varying float vDepth;varying float vRand;varying float vLand;void main(){float delay=aDist*.55+aRand*.2;float progress=smoothstep(0.,1.,clamp((uForm-delay)/(1.-delay),0.,1.));float swirl=(1.-progress)*sin(uTime*1.4+aRand*18.)*.18;vec3 direction=normalize(position);vec3 spiral=vec3(-direction.y,direction.x,direction.z)*swirl;vec3 formed=mix(aStart,position,progress)+spiral*(1.-progress);float landing=smoothstep(.78,.98,progress)*(1.-smoothstep(.98,1.0,progress));vLand=landing;vRand=aRand;vec4 mv=modelViewMatrix*vec4(formed,1.);vDepth=mv.z;gl_Position=projectionMatrix*mv;gl_PointSize=clamp((1.35+landing*1.1)*(3.8/-mv.z),.55,2.5);}',
+			fragmentShader: 'uniform float uTime;uniform float uBackOpacity;uniform float uFrontOpacity;uniform float uGlow;uniform float uFresnelPower;uniform float uRimStrength;uniform float uLandingFlash;varying float vDepth;varying float vRand;varying float vLand;void main(){if(distance(gl_PointCoord,vec2(.5))>.5)discard;float front=smoothstep(-.15,.35,-vDepth);float edge=pow(1.-front,uFresnelPower);float twinkle=1.+step(.92,vRand)*sin(uTime*2.1+vRand*40.)*.08;float brightness=(uGlow+edge*uRimStrength+vLand*uLandingFlash)*twinkle;float alpha=mix(uBackOpacity,uFrontOpacity,front)*(1.+edge*.2);gl_FragColor=vec4(vec3(.918,.957,1.)*brightness,alpha);}',
+			transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+		});
+		group.add(new THREE.Points(geometry, pointMaterial));
+		let haloMaterial = null;
+		if (!isMobile) {
+			haloMaterial = new THREE.ShaderMaterial({
+				uniforms: { uForm: pointMaterial.uniforms.uForm, uTime: pointMaterial.uniforms.uTime, uRatio: { value: CONFIG.HALO_RATIO }, uOpacity: { value: CONFIG.HALO_OPACITY } },
+				vertexShader: 'attribute vec3 aStart;attribute float aRand;uniform float uForm;uniform float uTime;void main(){if(aRand>0.25){gl_PointSize=0.;gl_Position=vec4(2.);return;}float progress=smoothstep(0.,1.,uForm);vec3 formed=mix(aStart,position,progress);vec4 mv=modelViewMatrix*vec4(formed,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(2.1*2.2*(3.8/-mv.z),1.2,8.);}',
+				fragmentShader: 'uniform float uOpacity;void main(){if(distance(gl_PointCoord,vec2(.5))>.5)discard;gl_FragColor=vec4(.02,.55,1.,uOpacity);}',
+				transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+			});
+			group.add(new THREE.Points(geometry, haloMaterial));
+		}
+		const originGeometry = new THREE.BufferGeometry().setFromPoints([origin.clone().multiplyScalar(1.01)]);
+		const circularPointMaterial = (color, size) => new THREE.ShaderMaterial({
+			uniforms: { uColor: { value: new THREE.Color(color) } },
+			vertexShader: 'void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=' + size + '*(3.8/-mv.z);gl_Position=projectionMatrix*mv;}',
+			fragmentShader: 'uniform vec3 uColor;void main(){if(distance(gl_PointCoord,vec2(.5))>.5)discard;gl_FragColor=vec4(uColor,1.0);}',
+			transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+		});
+		const originMaterial = circularPointMaterial('#00d4ff', .075);
+		group.add(new THREE.Points(originGeometry, originMaterial));
+		const arcObjects = [];
+		let activeDestination = -1;
+		const setActiveDestination = (index) => {
+			if (index === activeDestination && coarse) index = -1;
+			activeDestination = index;
+			arcObjects.forEach(({ arc }, arcIndex) => { arc.material.uniforms.uFocus.value = index < 0 ? 1 : index === arcIndex ? 1.6 : CONFIG.HOVER_DIM_OPACITY; });
+			destinationMaterial.uniforms.uActiveIndex.value = index;
+			sharedRows.forEach((row) => row.classList.toggle('is-active', CONFIG.DESTINATIONS.findIndex(({ name }) => name === row.dataset.destinationName) === index));
+		};
+		const destinationPositions = new Float32Array(CONFIG.DESTINATIONS.length * 3);
+		const destinationPhases = new Float32Array(CONFIG.DESTINATIONS.length);
+		CONFIG.DESTINATIONS.forEach((destination, index) => {
+			const target = vectorFor(destination, THREE), angle = origin.angleTo(target), positionsArc = [], colors = [], ts = [];
+			destinationPositions.set([target.x * 1.015, target.y * 1.015, target.z * 1.015], index * 3);
+			destinationPhases[index] = index * CONFIG.ARC_STAGGER;
+			for (let i = 0; i <= 32; i += 1) {
+				const t = i / 32, point = origin.clone().lerp(target, t).normalize().multiplyScalar(1.012 + Math.sin(Math.PI * t) * CONFIG.ARC_HEIGHT * angle);
+				positionsArc.push(point.x, point.y, point.z);
+				const color = new THREE.Color('#00d4ff').lerp(new THREE.Color('#a24bff'), t);
+				colors.push(color.r, color.g, color.b); ts.push(t);
+			}
+			const arcGeometry = new THREE.BufferGeometry();
+			arcGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positionsArc, 3));
+			arcGeometry.setAttribute('aColor', new THREE.Float32BufferAttribute(colors, 3));
+			arcGeometry.setAttribute('aT', new THREE.Float32BufferAttribute(ts, 1));
+			const arcMaterial = new THREE.ShaderMaterial({
+				uniforms: { uTime: { value: 0 }, uDraw: { value: 0 }, uFlowSpeed: { value: CONFIG.FLOW_SPEED }, uRepeats: { value: CONFIG.REPEATS }, uFocus: { value: 1 } },
+				vertexShader: 'attribute float aT;varying float vT;varying float vDepth;void main(){vT=aT;vec4 mv=modelViewMatrix*vec4(position,1.);vDepth=mv.z;gl_Position=projectionMatrix*mv;}',
+				fragmentShader: `uniform float uTime;uniform float uDraw;uniform float uFlowSpeed;uniform float uRepeats;uniform float uFocus;varying float vT;varying float vDepth;void main(){if(vT>uDraw)discard;float flow=fract(vT*uRepeats-uTime*uFlowSpeed);vec3 cyan=vec3(0.,.83,1.),blue=vec3(.04,.38,1.),violet=vec3(.64,.15,1.);vec3 color=flow<.5?mix(cyan,blue,flow*2.):mix(blue,violet,(flow-.5)*2.);float head=exp(-max(0.,uDraw-vT)*80.);float strength=${index < 2 ? '1.18' : '1.0'}*uFocus;float depthOpacity=mix(.2,1.,step(0.,-vDepth));gl_FragColor=vec4(color*(.85+head*1.25)*strength,${CONFIG.ARC_OPACITY}*strength*depthOpacity);}`,
+				transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+			});
+			const arc = new THREE.Line(arcGeometry, arcMaterial); group.add(arc);
+			arcObjects.push({ arc });
+		});
+		const destinationGeometry = new THREE.BufferGeometry();
+		destinationGeometry.setAttribute('position', new THREE.Float32BufferAttribute(destinationPositions, 3));
+		destinationGeometry.setAttribute('aPhase', new THREE.Float32BufferAttribute(destinationPhases, 1));
+		destinationGeometry.setAttribute('aIndex', new THREE.Float32BufferAttribute(CONFIG.DESTINATIONS.map((_, index) => index), 1));
+		const destinationMaterial = new THREE.ShaderMaterial({
+			uniforms: { uTime: { value: 0 }, uSequence: { value: reducedMotion ? 99 : 0 }, uReduced: { value: reducedMotion ? 1 : 0 }, uPeriod: { value: CONFIG.DEST_RING_PERIOD }, uColor: { value: new THREE.Color(CONFIG.DEST_COLOR) }, uActiveIndex: { value: -1 } },
+			vertexShader: `attribute float aPhase;attribute float aIndex;uniform float uTime;uniform float uSequence;uniform float uPeriod;uniform float uActiveIndex;varying float vDepth;varying float vPulse;varying float vFocus;void main(){float arrival=smoothstep(aPhase,aPhase+${CONFIG.ARC_DRAW_DURATION},uSequence);float pulse=exp(-max(0.,uSequence-(aPhase+${CONFIG.ARC_DRAW_DURATION}))*7.)*.8;float ring=fract(max(0.,uTime-aPhase*8.)/uPeriod);vPulse=arrival*(pulse+ring*.6);vFocus=uActiveIndex<0.?1.:abs(uActiveIndex-aIndex)<.5?1.6:${CONFIG.HOVER_DIM_OPACITY};vec4 mv=modelViewMatrix*vec4(position,1.);vDepth=mv.z;gl_Position=projectionMatrix*mv;gl_PointSize=clamp((${CONFIG.DEST_DOT_SIZE}+pulse*.05)*(3.8/-mv.z)*vFocus,2.5,8.);}`,
+			fragmentShader: 'uniform vec3 uColor;uniform float uReduced;varying float vDepth;varying float vPulse;varying float vFocus;void main(){float d=distance(gl_PointCoord,vec2(.5));if(d>.5||vPulse<=.001)discard;float front=smoothstep(-.15,.35,-vDepth);float blink=mix(.75,.98,(sin(vPulse*6.283)+1.)*.5);float ring=smoothstep(.5,.18,abs(d-.36))*vPulse*(1.-uReduced);float alpha=mix(.2,1.,front)*blink*vFocus;gl_FragColor=vec4(uColor*(1.2+vPulse*2.2+ring)*vFocus,alpha+ring);}',
+			transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+		});
+		const destinationMarkers = new THREE.Points(destinationGeometry, destinationMaterial);
+		group.add(destinationMarkers);
+		const headTargets = new THREE.Float32BufferAttribute(destinationPositions.slice(), 3);
+		const headGeometry = new THREE.BufferGeometry();
+		headGeometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(CONFIG.DESTINATIONS.length * 3), 3));
+		headGeometry.setAttribute('aTarget', headTargets);
+		headGeometry.setAttribute('aPhase', new THREE.Float32BufferAttribute(destinationPhases, 1));
+		const headMaterial = new THREE.ShaderMaterial({
+			uniforms: { uSequence: destinationMaterial.uniforms.uSequence, uOrigin: { value: origin }, uHeight: { value: CONFIG.ARC_HEIGHT } },
+			vertexShader: `attribute vec3 aTarget;attribute float aPhase;uniform float uSequence;uniform vec3 uOrigin;uniform float uHeight;varying float vDepth;varying float vVisible;void main(){float progress=clamp((uSequence-aPhase)/${CONFIG.ARC_DRAW_DURATION},0.,1.);float arc=sin(progress*3.14159265)*uHeight;vec3 point=normalize(mix(uOrigin,aTarget,progress))*(${1.012}+arc);vVisible=step(.001,progress)*(1.-step(.999,progress));vec4 mv=modelViewMatrix*vec4(point,1.);vDepth=mv.z;gl_Position=projectionMatrix*mv;gl_PointSize=vVisible*clamp(${CONFIG.HEAD_SIZE}*(3.8/-mv.z),2.,7.);}`,
+			fragmentShader: 'varying float vDepth;varying float vVisible;void main(){if(vVisible<.5||distance(gl_PointCoord,vec2(.5))>.5)discard;float front=smoothstep(-.15,.35,-vDepth);gl_FragColor=vec4(1.,.96,1.,mix(.2,1.,front));}',
+			transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+		});
+		const arcHeads = new THREE.Points(headGeometry, headMaterial);
+		group.add(arcHeads);
+		console.info('[GlobeScene] ARC_COUNT =', arcObjects.length, 'parents', [...new Set(arcObjects.map(({ arc }) => arc.parent?.type))], 'DEST_MARKERS = 1');
+		const rowObserver = sharedRows.length ? new IntersectionObserver((entries) => {
+			if (coarse) return;
+			const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+			if (visible) setActiveDestination(CONFIG.DESTINATIONS.findIndex(({ name }) => name === visible.target.dataset.destinationName));
+		}, { threshold: [.6] }) : null;
+		const rowListeners = [];
+		sharedRows.forEach((row) => {
+			const index = CONFIG.DESTINATIONS.findIndex(({ name }) => name === row.dataset.destinationName);
+			const enter = () => setActiveDestination(index);
+			const leave = () => { if (document.activeElement !== row) setActiveDestination(-1); };
+			const click = () => { if (coarse) setActiveDestination(index === activeDestination ? -1 : index); };
+			row.addEventListener('pointerenter', enter);
+			row.addEventListener('pointerleave', leave);
+			row.addEventListener('focus', enter);
+			row.addEventListener('blur', leave);
+			row.addEventListener('click', click);
+			rowListeners.push({ row, enter, leave, click });
+			rowObserver?.observe(row);
+		});
+		const pointer = { previousX: 0, dragging: false, velocity: 0 };
+		const onPointerDown = (event) => { if (!coarse) { pointer.dragging = true; pointer.previousX = event.clientX; } };
+		const onPointerMove = (event) => { if (pointer.dragging) { pointer.velocity = (event.clientX - pointer.previousX) * .004; pointer.previousX = event.clientX; } };
+		const onPointerUp = () => { pointer.dragging = false; };
+		if (!coarse) { root.addEventListener('pointerdown', onPointerDown); window.addEventListener('pointermove', onPointerMove); window.addEventListener('pointerup', onPointerUp); }
+		const resize = () => {
+			const sectionRect = root.parentElement?.getBoundingClientRect();
+			const width = Math.max(1, document.documentElement.clientWidth);
+			const height = Math.max(1, sectionRect?.height || root.getBoundingClientRect().height);
+			root.style.left = `${-(sectionRect?.left || 0)}px`;
+			root.style.width = `${width}px`;
+			renderer.setSize(width, height, false);
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+			if (!resize.logged) {
+				resize.logged = true;
+				console.info('[GlobeScene] viewport', { canvas: canvas.getBoundingClientRect().toJSON(), canvasWidth: canvas.width, canvasHeight: canvas.height, rendererSize: renderer.getSize(new THREE.Vector2()).toArray(), inner: [window.innerWidth, window.innerHeight], clientWidth: document.documentElement.clientWidth });
+			}
+		};
+		resize(); const observer = new ResizeObserver(resize); observer.observe(root); window.addEventListener('resize', resize);
+		let running = true, frame = 0;
+		const render = (time) => {
+			if (!running) return;
+			const seconds = time / 1000;
+			if (!reducedMotion) { const rotationScale = activeDestination < 0 ? 1 : .4; if (pointer.dragging) group.rotation.y += pointer.velocity; else { group.rotation.y += CONFIG.ROTATION_SPEED * rotationScale / 1000 * 16.67; pointer.velocity *= .94; group.rotation.y += pointer.velocity; } }
+			const sectionTop = section?.getBoundingClientRect().top ?? window.innerHeight;
+			const scrollRange = Math.max(1, window.innerHeight * (CONFIG.SCROLL_FORM_START - CONFIG.SCROLL_FORM_END));
+			const scrollProgress = Math.min(1, Math.max(0, (window.innerHeight * CONFIG.SCROLL_FORM_START - sectionTop) / scrollRange));
+			const formPhase = Math.min(1, scrollProgress / .58);
+			const arcPhase = Math.min(1, Math.max(0, (scrollProgress - .68) / .32));
+			const form = reducedMotion ? 1 : formPhase;
+			const sequence = reducedMotion ? 99 : arcPhase * (CONFIG.ARC_STAGGER * (CONFIG.DESTINATIONS.length - 1) + CONFIG.ARC_DRAW_DURATION);
+			pointMaterial.uniforms.uForm.value = form;
+			pointMaterial.uniforms.uTime.value = seconds;
+			arcObjects.forEach(({ arc }, index) => {
+				arc.material.uniforms.uTime.value = seconds;
+				arc.material.uniforms.uDraw.value = reducedMotion ? 1 : THREE.MathUtils.smoothstep((sequence - index * CONFIG.ARC_STAGGER) / CONFIG.ARC_DRAW_DURATION, 0, 1);
+			});
+			destinationMaterial.uniforms.uTime.value = seconds;
+			destinationMaterial.uniforms.uSequence.value = sequence;
+			group.updateMatrixWorld(true);
+			const originWorld = origin.clone().multiplyScalar(1.01).applyMatrix4(group.matrixWorld);
+			const projected = originWorld.clone().project(camera);
+			const canvasRect = canvas.getBoundingClientRect();
+			const labelX = canvasRect.left + (projected.x * .5 + .5) * canvasRect.width;
+			const labelY = canvasRect.top + (-projected.y * .5 + .5) * canvasRect.height;
+			const surfaceNormal = camera.position.clone().sub(originWorld).normalize();
+			const originVisible = projected.z < 1 && projected.z > -1 && surfaceNormal.dot(originWorld.clone().normalize()) > 0.05;
+			originLabel.style.left = `${labelX + 14 - canvasRect.left}px`; originLabel.style.top = `${labelY - 14 - canvasRect.top}px`; originLabel.style.opacity = originVisible ? '1' : '0';
+			renderer.render(scene, camera); frame = requestAnimationFrame(render);
+		};
+		frame = requestAnimationFrame(render); fallback.classList.add('is-hidden'); fallbackArcs.classList.add('is-hidden');
+		cleanup = () => { running = false; cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize', resize); rowObserver?.disconnect(); rowListeners.forEach(({ row, enter, leave, click }) => { row.removeEventListener('pointerenter', enter); row.removeEventListener('pointerleave', leave); row.removeEventListener('focus', enter); row.removeEventListener('blur', leave); row.removeEventListener('click', click); }); if (!coarse) { root.removeEventListener('pointerdown', onPointerDown); window.removeEventListener('pointermove', onPointerMove); window.removeEventListener('pointerup', onPointerUp); } geometry.dispose(); pointMaterial.dispose(); if (haloMaterial) haloMaterial.dispose(); originGeometry.dispose(); originMaterial.dispose(); destinationGeometry.dispose(); destinationMaterial.dispose(); headGeometry.dispose(); headMaterial.dispose(); arcObjects.forEach(({ arc }) => { arc.geometry.dispose(); arc.material.dispose(); }); renderer.dispose(); cleanup = null; fallback.classList.remove('is-hidden'); fallbackArcs.classList.remove('is-hidden'); };
+	};
+	const visibility = new IntersectionObserver((entries) => { if (entries[0].isIntersecting) initGlobe(); else if (cleanup) cleanup(); }, { rootMargin: '100% 0px' });
+	if (root) visibility.observe(root);
+</script>
