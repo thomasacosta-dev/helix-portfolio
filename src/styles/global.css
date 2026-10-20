@@ -1,5 +1,4 @@
-@import '@fontsource-variable/bricolage-grotesque';
-@import '@fontsource-variable/dm-sans';
+@import '@fontsource-variable/montserrat';
 
 @font-face {
   font-family: 'DM Sans Fallback';
@@ -548,7 +547,7 @@ button, a, [role='button'] { touch-action: manipulation; }
   overflow-x: clip;
 }
 .editorial-phase-one .page-shell { position: relative; z-index: 1; width: min(calc(100% - (var(--editorial-gutter) * 2)), 1600px); }
-.editorial-phase-one .site-header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; min-height: 72px; padding-top: 24px; }
+.editorial-phase-one .site-header { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; min-height: 72px; padding-top: 24px; }
 .editorial-phase-one .brand-lockup { display: inline-flex; flex-direction: row; align-items: center; gap: 11px; color: var(--editorial-ink); font-family: 'Bricolage Grotesque Variable', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: .18em; line-height: 1; text-decoration: none; }
 .editorial-phase-one .brand-lockup img { width: 30px; height: 30px; object-fit: contain; }
 .editorial-phase-one .header-nav { display: flex; justify-content: center; align-items: center; gap: clamp(18px, 2.8vw, 44px); }
@@ -557,6 +556,23 @@ button, a, [role='button'] { touch-action: manipulation; }
 .editorial-phase-one .header-context { display: none; }
 .editorial-phase-one .header-cta { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; padding: 6px 16px; border: 1px solid var(--editorial-line); border-radius: 999px; color: var(--editorial-ink); font-size: 13px; letter-spacing: .06em; text-decoration: none; }
 .editorial-phase-one .header-cta > span:first-child { width: 6px; height: 6px; border-radius: 50%; background: var(--editorial-cyan); }
+.editorial-phase-one .header-language {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-left: 10px;
+}
+.editorial-phase-one .header-language button {
+	padding: 4px 5px;
+	border: 0;
+	background: transparent;
+	color: var(--editorial-muted);
+	font: inherit;
+	font-size: 10px;
+	letter-spacing: .12em;
+	cursor: pointer;
+}
+.editorial-phase-one .header-language button[aria-pressed='true'] { color: var(--editorial-ink); }
 .editorial-phase-one .menu-trigger { display: none; margin-left: 0; min-height: 44px; padding: 6px 0; border: 0; background: transparent; color: var(--editorial-ink); cursor: pointer; font-size: 12px; letter-spacing: .08em; }
 .editorial-phase-one .menu-trigger:hover { color: var(--editorial-accent); }
 .editorial-phase-one .hero-screen {
@@ -659,7 +675,7 @@ button, a, [role='button'] { touch-action: manipulation; }
   justify-self: end;
   position: absolute;
   right: 0;
-  bottom: 105px;
+  bottom: 88px;
   transform: none;
   z-index: 2;
   margin: 0;
@@ -754,6 +770,7 @@ button, a, [role='button'] { touch-action: manipulation; }
 
 /* Viewport height < 700px adjustments */
 @media (max-width: 899px) {
+  .editorial-phase-one .site-header { grid-template-columns: 1fr auto auto; }
   .editorial-phase-one .header-nav,
   .editorial-phase-one .header-cta { display: none; }
   .editorial-phase-one .menu-trigger { display: inline-flex; align-items: center; justify-content: flex-end; }
@@ -802,7 +819,7 @@ button, a, [role='button'] { touch-action: manipulation; }
     display: block;
     width: 100%;
     max-width: 100%;
-    margin: 40px 0 0;
+    margin: 58px 0 0;
     padding-top: 24px;
     transform: none;
     border-top: 1px solid var(--editorial-line);
@@ -1063,7 +1080,7 @@ button, a, [role='button'] { touch-action: manipulation; }
 .globe-arcs-fallback.is-hidden { opacity: 0; }
 .globe-arcs-fallback path { fill: none; stroke: url(#globe-arc-gradient); stroke-width: 1.2; stroke-linecap: round; }
 .globe-origin-label { position: absolute; top: 0; left: 0; z-index: 2; display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 1px solid rgba(236,232,225,.45); border-radius: 999px; color: var(--editorial-ink); font-size: 10px; letter-spacing: .08em; line-height: 1; white-space: nowrap; transform: translate(-50%, -50%); pointer-events: none; }
-.globe-origin-label span { width: 5px; height: 5px; border-radius: 50%; background: var(--editorial-cyan); animation: globe-pulse 2.4s ease-in-out infinite; }
+.globe-origin-label .globe-origin-dot { width: 5px; height: 5px; flex: 0 0 auto; border-radius: 50%; background: var(--editorial-cyan); animation: globe-pulse 2.4s ease-in-out infinite; }
 .globe-destination-list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @keyframes globe-pulse { 50% { opacity: .35; transform: scale(.7); } }
 @media (max-width: 820px) {
@@ -1078,7 +1095,7 @@ button, a, [role='button'] { touch-action: manipulation; }
   .shared-hours-meta span { font-size: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .globe-origin-label span { animation: none; }
+  .globe-origin-label .globe-origin-dot { animation: none; }
   .globe-fallback { transition: none; }
 }
 
@@ -1190,4 +1207,16 @@ button, a, [role='button'] { touch-action: manipulation; }
 .editorial-phase-one.editorial-phase-two .contact,
 .editorial-phase-one.editorial-phase-two .site-footer {
   display: none;
+}
+
+/* Montserrat is the approved global voice across every surface. */
+html,
+body,
+body *,
+button,
+input,
+textarea,
+select,
+option {
+  font-family: 'Montserrat Variable', sans-serif !important;
 }

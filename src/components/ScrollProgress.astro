@@ -1,0 +1,152 @@
+<aside class="scroll-progress" data-scroll-progress aria-hidden="true">
+	<div class="scroll-progress-track">
+		<span class="scroll-progress-marker" data-scroll-progress-marker></span>
+	</div>
+	<span class="scroll-progress-value" data-scroll-progress-value>001%</span>
+</aside>
+
+<style>
+	:global(html) {
+		scrollbar-width: none;
+	}
+
+	:global(html::-webkit-scrollbar) {
+		display: none;
+	}
+
+	.scroll-progress {
+		--scroll-progress: 0;
+		position: fixed;
+		top: 50%;
+		right: clamp(14px, 2vw, 32px);
+		z-index: 4;
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		transform: translateY(-50%);
+		pointer-events: none;
+		opacity: 0;
+		visibility: hidden;
+		mix-blend-mode: difference;
+		transition: opacity 400ms ease-out, visibility 400ms;
+	}
+
+	.scroll-progress.is-visible {
+		opacity: 1;
+		visibility: visible;
+	}
+
+	.scroll-progress-track {
+		position: relative;
+		width: 1px;
+		height: clamp(96px, 14svh, 160px);
+		background: rgba(255, 255, 255, .22);
+	}
+
+	.scroll-progress-marker {
+		position: absolute;
+		top: 0;
+		left: -1px;
+		width: 3px;
+		height: 14px;
+		border-top: 1px solid #00d4ff;
+		background: rgba(255, 255, 255, .85);
+		transform: translateY(calc(var(--scroll-progress) * var(--scroll-progress-travel, 0px)));
+		transform-origin: center top;
+	}
+
+	.scroll-progress-value {
+		width: 38px;
+		color: rgba(255, 255, 255, .7);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 11px;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: .08em;
+		line-height: 1;
+		text-align: left;
+		text-shadow: 0 1px 5px rgba(0, 0, 0, .22);
+	}
+
+	@media (max-width: 899px) {
+		.scroll-progress { display: none; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.scroll-progress { transition: none; }
+	}
+</style>
+
+<script>
+	const indicator = document.querySelector('[data-scroll-progress]');
+	const marker = indicator?.querySelector('[data-scroll-progress-marker]');
+	const value = indicator?.querySelector('[data-scroll-progress-value]');
+
+	if (indicator && marker && value) {
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		let documentHeight = 0;
+		let viewportHeight = window.innerHeight;
+		let markerTravel = 0;
+		let targetProgress = 0;
+		let displayedProgress = 0;
+		let lastPercent = 1;
+
+		const cacheMetrics = () => {
+			documentHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+			viewportHeight = window.innerHeight;
+			const track = indicator.querySelector('.scroll-progress-track');
+			if (track) {
+				const trackHeight = track.getBoundingClientRect().height;
+				markerTravel = Math.max(0, trackHeight - marker.getBoundingClientRect().height);
+				indicator.style.setProperty('--scroll-progress-travel', `${markerTravel}px`);
+			}
+		};
+
+		const readProgress = () => {
+			const range = Math.max(1, documentHeight - viewportHeight);
+			targetProgress = Math.max(0, Math.min(1, window.scrollY / range));
+		};
+
+		const render = () => {
+			if (!reducedMotion) displayedProgress += (targetProgress - displayedProgress) * .18;
+			else displayedProgress = targetProgress;
+			indicator.style.setProperty('--scroll-progress', displayedProgress.toFixed(4));
+			const percent = Math.max(1, Math.min(100, Math.round(targetProgress * 100)));
+			if (percent !== lastPercent) {
+				value.textContent = `${String(percent).padStart(3, '0')}%`;
+				lastPercent = percent;
+			}
+		};
+
+		const updateVisibility = () => {
+			const preloader = document.querySelector('[data-preloader]');
+			const menu = document.querySelector('[data-menu-overlay]');
+			const ready = !preloader || preloader.classList.contains('is-done');
+			const menuOpen = menu?.classList.contains('is-open');
+			indicator.classList.toggle('is-visible', ready && !menuOpen);
+		};
+
+		const handleScroll = () => {
+			readProgress();
+			if (reducedMotion) render();
+		};
+
+		cacheMetrics();
+		readProgress();
+		render();
+		updateVisibility();
+
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		window.addEventListener('resize', () => {
+			cacheMetrics();
+			readProgress();
+			if (reducedMotion) render();
+		}, { passive: true });
+		window.addEventListener('load', cacheMetrics, { once: true });
+		window.addEventListener('helix-tick', () => {
+			readProgress();
+			render();
+		});
+		new ResizeObserver(cacheMetrics).observe(document.documentElement);
+		new MutationObserver(updateVisibility).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+	}
+</script>

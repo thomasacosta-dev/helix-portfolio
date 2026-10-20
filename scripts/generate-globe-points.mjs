@@ -8,6 +8,9 @@ const sampleCount = 60000;
 const points = [];
 const landFeature = feature(land, land.objects.land);
 const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+const frontRotation = 0.28;
+const frontCos = Math.cos(frontRotation);
+const frontSin = Math.sin(frontRotation);
 
 for (let i = 0; i < sampleCount; i += 1) {
 	const y = 1 - (i / (sampleCount - 1)) * 2;
@@ -17,7 +20,9 @@ for (let i = 0; i < sampleCount; i += 1) {
 	const z = Math.sin(theta) * radius;
 	const lon = Math.atan2(z, x) * 180 / Math.PI;
 	const lat = Math.asin(y) * 180 / Math.PI;
-	if (geoContains(landFeature, [lon, lat])) points.push(x, y, z);
+	if (geoContains(landFeature, [lon, lat])) {
+		points.push(frontCos * x + frontSin * z, y, -frontSin * x + frontCos * z);
+	}
 }
 
 const output = resolve('public/data');

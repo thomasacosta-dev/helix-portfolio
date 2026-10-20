@@ -1,0 +1,170 @@
+---
+import '../styles/sections/servicios.css';
+
+const SERVICES = [
+	{ id: 'software', label: 'A MEDIDA', labelEn: 'MADE TO FIT', title: 'SOFTWARE', titleEn: 'SOFTWARE', short: 'SOFTWARE', shortEn: 'SOFTWARE', description: 'Plataformas y aplicaciones hechas a la medida de las necesidades de tu negocio.', descriptionEn: 'Platforms and applications built around your business needs.', tags: ['SOFTWARE A MEDIDA', 'APIS'], tagsEn: ['CUSTOM SOFTWARE', 'APIS'], visible: true },
+	{ id: 'web', label: 'PRESENCIA', labelEn: 'PRESENCE', title: 'WEB', titleEn: 'WEB', short: 'WEB', shortEn: 'WEB', description: 'Sitios corporativos y landing pages diseñados a la medida, con un CMS que administras tú.', descriptionEn: 'Corporate sites and landing pages built to fit, with a CMS you manage.', tags: ['DISEÑO', 'DESARROLLO', 'CMS'], tagsEn: ['DESIGN', 'DEVELOPMENT', 'CMS'], visible: true },
+	{ id: 'dashboards', label: 'DATOS', labelEn: 'DATA', title: 'DASHBOARDS', titleEn: 'DASHBOARDS', short: 'DASHBOARDS', shortEn: 'DASHBOARDS', description: 'Paneles que centralizan la información y te ayudan a gestionar procesos.', descriptionEn: 'Dashboards that centralize information and help you manage processes.', tags: ['DATOS', 'ALERTAS', 'GESTIÓN'], tagsEn: ['DATA', 'ALERTS', 'MANAGEMENT'], visible: true },
+	{ id: 'integraciones', label: 'CONEXIÓN', labelEn: 'CONNECTION', title: 'INTEGRACIONES', titleEn: 'INTEGRATIONS', short: 'INTEGRACIONES', shortEn: 'INTEGRATIONS', description: 'Conectamos sistemas, chatbots, plugins y WhatsApp para quitar pasos manuales.', descriptionEn: 'We connect systems, chatbots, plugins and WhatsApp to remove manual steps.', tags: ['SISTEMAS', 'CHATBOTS', 'WHATSAPP'], tagsEn: ['SYSTEMS', 'CHATBOTS', 'WHATSAPP'], visible: true },
+	{ id: 'comercio', label: 'VENTAS', labelEn: 'SALES', title: 'COMERCIO', titleEn: 'COMMERCE', short: 'COMERCIO', shortEn: 'COMMERCE', description: 'Tiendas en línea e integración con plataformas como Shopify.', descriptionEn: 'Online stores and integrations with platforms such as Shopify.', tags: ['TIENDA', 'SHOPIFY'], tagsEn: ['STORE', 'SHOPIFY'], visible: true },
+	{ id: 'white-label', label: 'MARCA PROPIA', labelEn: 'WHITE LABEL', title: 'WHITE LABEL', titleEn: 'WHITE LABEL', short: 'WHITE LABEL', shortEn: 'WHITE LABEL', description: 'Plataformas digitales personalizables con la marca de cada empresa.', descriptionEn: 'Customizable digital platforms carrying each company’s brand.', tags: ['PLATAFORMAS', 'TU MARCA'], tagsEn: ['PLATFORMS', 'YOUR BRAND'], visible: true },
+	{ id: 'infraestructura', label: 'INFRAESTRUCTURA', title: 'HOSTING', short: 'HOSTING', description: '', tags: [], visible: false },
+];
+
+const visibleServices = SERVICES.filter((service) => service.visible);
+const numberWords = ['Cero', 'Uno', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete'];
+const numberWordsEn = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'];
+const serviceCountWord = numberWords[visibleServices.length] ?? String(visibleServices.length);
+const serviceCountWordEn = numberWordsEn[visibleServices.length] ?? String(visibleServices.length);
+const lightPanels = [3];
+---
+
+<section class="services-section" id="servicios" aria-labelledby="services-title" data-services>
+	<div class="services-progress" aria-hidden="true"><span data-services-progress></span></div>
+	<article class="services-panel services-intro-panel" data-service-panel data-panel-index="0">
+		<div class="services-panel-inner">
+			<p class="services-intro-copy" data-es="Ayudamos a las empresas a fortalecer su presencia digital y a optimizar sus procesos con soluciones hechas a la medida." data-en="We help companies strengthen their digital presence and optimize their processes with solutions built to fit.">Ayudamos a las empresas a fortalecer su presencia digital y a optimizar sus procesos con soluciones hechas a la medida.</p>
+			<div class="services-intro-title">
+				<span data-es="Lo que" data-en="What we">Lo que</span>
+				<h2 id="services-title" data-es="OFRECEMOS" data-en="OFFER">OFRECEMOS</h2>
+			</div>
+			<div class="services-intro-footer">
+				<p><span data-es={`${serviceCountWord} servicios.`} data-en={`${serviceCountWordEn} services.`}>{serviceCountWord} servicios.</span> <em data-es="Una sola operación." data-en="One operation.">Una sola operación.</em></p>
+				<div class="services-scroll-cue"><span data-es="DESLIZA" data-en="SCROLL">DESLIZA</span><button type="button" aria-label="Desplazarte hacia los servicios" data-es-aria="Desplazarte hacia los servicios" data-en-aria="Scroll to services">↓</button></div>
+			</div>
+			<nav class="services-index" aria-label="Índice de servicios" data-es-aria="Índice de servicios" data-en-aria="Services index">
+				{visibleServices.map((service, index) => (
+					<a href={`#svc-${service.id}`}><small>{String(index + 1).padStart(2, '0')}</small><strong data-es={service.short} data-en={service.shortEn}>{service.short}</strong></a>
+				))}
+			</nav>
+		</div>
+	</article>
+
+	{visibleServices.map((service, index) => {
+		const number = String(index + 1).padStart(2, '0');
+		const isLight = lightPanels.includes(index + 1);
+		return (
+			<article class:list={['services-panel', 'service-panel', index % 2 === 0 ? 'service-panel-odd service-side-left' : 'service-panel-even service-side-right', { 'service-panel-light': isLight }]} id={`svc-${service.id}`} data-service-panel data-panel-index={index + 1} aria-labelledby={`svc-title-${service.id}`}>
+				<div class="services-panel-inner">
+					<div class="service-number-block">
+						<strong>{number}</strong>
+						<span data-es={service.label} data-en={service.labelEn}>{service.label}</span>
+					</div>
+					<div class="service-vertical-line" aria-hidden="true"></div>
+					<div class="service-content">
+						<div class="service-title-mask"><h3 id={`svc-title-${service.id}`} data-es={service.title} data-en={service.titleEn}>{service.title}</h3></div>
+						<p class="service-description" data-es={service.description} data-en={service.descriptionEn}>{service.description}</p>
+						<p class="service-tags" data-es={service.tags.join(' · ')} data-en={service.tagsEn.join(' · ')}>{service.tags.join(' · ')}</p>
+						{index === visibleServices.length - 1 && <a class="services-cta" href="#contacto"><span aria-hidden="true"></span><span data-es="Cuéntanos tu proyecto" data-en="Tell us about your project">Cuéntanos tu proyecto</span> <span aria-hidden="true">↗</span></a>}
+					</div>
+					<span class="service-ghost" aria-hidden="true">{number}</span>
+				</div>
+			</article>
+		);
+	})}
+</section>
+
+<script>
+	const services = document.querySelector('[data-services]');
+	const panels = services ? [...services.querySelectorAll('[data-service-panel]')] : [];
+	const progress = services?.querySelector('[data-services-progress]');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const setLightPanel = (active) => {
+		const root = document.documentElement;
+		const current = Number(root.dataset.servicesLightCount || 0);
+		const next = active ? current + 1 : Math.max(0, current - 1);
+		const method = document.querySelector('[data-method]');
+		const methodRect = method?.getBoundingClientRect();
+		const otherLightActive = methodRect && methodRect.top < window.innerHeight * .7 && methodRect.bottom > window.innerHeight * .3;
+		root.dataset.servicesLightCount = String(next);
+		if (active) root.classList.add('on-light');
+		else if (next === 0 && !otherLightActive) root.classList.remove('on-light');
+	};
+
+	if (services && panels.length) {
+		let activeIndex = -1;
+		let lightActive = false;
+		const updateActivePanel = () => {
+			const sectionTop = services.getBoundingClientRect().top + window.scrollY;
+			const nextIndex = Math.max(0, Math.min(panels.length - 1, Math.floor((window.scrollY - sectionTop + window.innerHeight * .35) / window.innerHeight)));
+			if (nextIndex === activeIndex) return;
+			activeIndex = nextIndex;
+			panels.forEach((panel, index) => {
+				panel.classList.toggle('is-current', index === activeIndex);
+				if (index === activeIndex && !reducedMotion) panel.classList.add('is-entered');
+			});
+			const nextLight = activeIndex === 3;
+			if (nextLight !== lightActive) {
+				lightActive = nextLight;
+				setLightPanel(lightActive);
+			}
+		};
+		const updateProgress = () => {
+			const rect = services.getBoundingClientRect();
+			const distance = Math.max(1, rect.height - window.innerHeight);
+			const value = Math.max(0, Math.min(1, -rect.top / distance));
+			if (progress) progress.style.transform = `scaleX(${value})`;
+		};
+		const fitTitles = () => {
+			if (window.innerWidth < 900) return;
+			panels.slice(1).forEach((panel) => {
+				const title = panel.querySelector('h3');
+				if (!title) return;
+				title.style.fontSize = '';
+				if (title.scrollWidth > title.clientWidth) {
+					const size = parseFloat(getComputedStyle(title).fontSize);
+					title.style.fontSize = `${Math.max(52, size * title.clientWidth / title.scrollWidth * .96)}px`;
+				}
+			});
+		};
+		const progressObserver = new IntersectionObserver(([entry]) => {
+			services.classList.toggle('is-in-view', entry.isIntersecting);
+		}, { threshold: 0 });
+		progressObserver.observe(services);
+		window.addEventListener('scroll', updateProgress, { passive: true });
+		window.addEventListener('scroll', updateActivePanel, { passive: true });
+		window.addEventListener('resize', updateProgress, { passive: true });
+		updateProgress();
+		updateActivePanel();
+		if (!lightActive) setLightPanel(false);
+		services.querySelector('.services-scroll-cue button')?.addEventListener('click', () => {
+			panels[1]?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+		});
+		document.fonts.ready.then(fitTitles);
+		window.addEventListener('resize', fitTitles, { passive: true });
+
+		if (!reducedMotion) {
+			(async () => {
+				const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger')]);
+				gsap.registerPlugin(ScrollTrigger);
+				panels.slice(0, -1).forEach((panel, index) => {
+					const nextPanel = panels[index + 1];
+					gsap.set(panel, { scale: 1, borderRadius: 0 });
+					ScrollTrigger.create({
+						trigger: nextPanel,
+						start: 'top bottom',
+						end: 'top top',
+						scrub: true,
+						onUpdate: (self) => {
+							const amount = self.progress;
+							gsap.set(panel, { scale: 1 - amount * .06, borderRadius: `${amount * 40}px` });
+							panel.style.setProperty('--svc-cover-opacity', String(amount * .55));
+						},
+						onRefresh: () => gsap.set(panel, { scale: 1, borderRadius: 0 }),
+						onLeave: () => {
+							gsap.set(panel, { scale: .94, borderRadius: '40px' });
+							panel.style.setProperty('--svc-cover-opacity', '.55');
+						},
+						onLeaveBack: () => {
+							gsap.set(panel, { scale: 1, borderRadius: 0 });
+							panel.style.setProperty('--svc-cover-opacity', '0');
+						},
+						invalidateOnRefresh: true,
+					});
+				});
+				document.fonts.ready.then(() => ScrollTrigger.refresh());
+				window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+			})();
+		}
+	}
+</script>

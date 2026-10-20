@@ -2,6 +2,13 @@
 import '../styles/global.css';
 import HelixScene from '../components/HelixScene.astro';
 import GlobeScene from '../components/GlobeScene.astro';
+import Capacidades from '../components/Capacidades.astro';
+import ScrollProgress from '../components/ScrollProgress.astro';
+import Metodo from '../components/Metodo.astro';
+import Servicios from '../components/Servicios.astro';
+import SkillsEquipo from '../components/SkillsEquipo.astro';
+import ContactoFinal from '../components/ContactoFinal.astro';
+import FooterFinal from '../components/FooterFinal.astro';
 
 const capabilities = [
 	{ title: 'Automatización', text: 'Conectamos herramientas y eliminamos pasos manuales que frenan la operación.', terms: 'Integraciones · Workflows · IA aplicada' },
@@ -42,6 +49,8 @@ const team = [
 
 const manifestoText = 'Trabajamos donde la operación se vuelve compleja. Conectamos lo que ya existe para que tu equipo pueda decidir, avanzar y aprender con más claridad.';
 const manifestoWords = manifestoText.split(' ');
+const manifestoTextEn = 'We work where operations become complex. We connect what already exists so your team can decide, move forward and learn with more clarity.';
+const manifestoWordsEn = manifestoTextEn.split(' ');
 const sharedHoursDestinations = [
 	['Miami', 'America/New_York'],
 	['Nueva York', 'America/New_York'],
@@ -71,27 +80,28 @@ const sharedHoursDestinations = [
 	<body class="editorial-phase-one editorial-phase-two">
 		<div class="preloader" data-preloader role="status" aria-live="polite">
 			<div class="preloader-brand"><img src="/helix-emblem.png" width="72" height="72" alt="Emblema HELIX" /><span>H E L I X</span></div>
-			<p class="preloader-caption"><strong>GCS</strong><span>Ingeniería cercana</span></p>
+			<p class="preloader-caption"><strong>GCS</strong><span data-es="Ingeniería cercana" data-en="Close engineering">Ingeniería cercana</span></p>
 			<div class="preloader-track"><span></span></div>
 			<strong class="preloader-counter" data-preloader-counter>0%</strong>
-			<button class="preloader-skip" type="button" data-preloader-skip>Skip intro</button>
+			<button class="preloader-skip" type="button" data-preloader-skip data-es="Saltar intro" data-en="Skip intro">Saltar intro</button>
 		</div>
 		<div class="custom-cursor" data-custom-cursor aria-hidden="true"><span></span></div>
 		<div class="page-shell">
 			<section class="hero-screen" id="top" aria-labelledby="hero-title">
 				<header class="site-header reveal" style="--delay: 0ms">
 					<a class="brand-lockup" href="/" aria-label="HELIX, inicio"><img src="/helix-emblem.png" width="32" height="32" alt="" /><span>HELIX</span></a>
-					<nav class="header-nav" aria-label="Navegación principal">
+				<nav class="header-nav" aria-label="Navegación principal" data-es-aria="Navegación principal" data-en-aria="Main navigation">
 						<a class="nav-link" href="#soluciones" data-es="Qué resolvemos" data-en="What we solve">Qué resolvemos</a>
 						<a class="nav-link" href="#proceso" data-es="Cómo trabajamos" data-en="How we work">Cómo trabajamos</a>
 						<a class="nav-link" href="#casos" data-es="Casos" data-en="Cases">Casos</a>
 					</nav>
-					<span class="header-context">(Ingeniería operativa)</span>
+					<span class="header-context" data-es="(Ingeniería operativa)" data-en="(Operational engineering)">(Ingeniería operativa)</span>
 					<a class="header-cta" href="#contacto"><span aria-hidden="true"></span><span data-es="Hablemos" data-en="Let’s talk">Hablemos</span></a>
-					<button class="menu-trigger" type="button" aria-label="Abrir menú">(Menú)</button>
+					<div class="header-language language-switcher" aria-label="Selector de idioma" data-es-aria="Selector de idioma" data-en-aria="Language selector"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+					<button class="menu-trigger" type="button" aria-label="Abrir menú" data-es-aria="Abrir menú" data-en-aria="Open menu" data-es="(Menú)" data-en="(Menu)">(Menú)</button>
 				</header>
 				<aside class="menu-overlay" data-menu-overlay aria-hidden="true" inert>
-					<button class="menu-close" type="button" data-menu-close aria-label="Cerrar menú">Cerrar ×</button>
+					<button class="menu-close" type="button" data-menu-close aria-label="Cerrar menú" data-es-aria="Cerrar menú" data-en-aria="Close menu" data-es="Cerrar ×" data-en="Close ×">Cerrar ×</button>
 					<nav aria-label="Menú principal">
 						<a class="nav-link" href="#soluciones" data-menu-link data-es="Qué resolvemos" data-en="What we solve">Qué resolvemos <span>↗</span></a>
 						<a class="nav-link" href="#proceso" data-menu-link data-es="Cómo trabajamos" data-en="How we work">Cómo trabajamos <span>↗</span></a>
@@ -124,14 +134,14 @@ const sharedHoursDestinations = [
 					</div>
 				</div>
 
-				<div class="editorial-marquee" aria-hidden="true"><span>HELIX · INGENIERÍA OPERATIVA · </span><span>HELIX · INGENIERÍA OPERATIVA · </span></div>
+				<div class="editorial-marquee" aria-hidden="true"><span data-es="HELIX · INGENIERÍA OPERATIVA · " data-en="HELIX · OPERATIONAL ENGINEERING · ">HELIX · INGENIERÍA OPERATIVA · </span><span data-es="HELIX · INGENIERÍA OPERATIVA · " data-en="HELIX · OPERATIONAL ENGINEERING · ">HELIX · INGENIERÍA OPERATIVA · </span></div>
 			</section>
 
 			<main>
 
 				<section class="editorial-manifesto" aria-labelledby="manifesto-title">
 					<div class="manifesto-aside">
-						<em>(El equipo)</em>
+						<em data-es="(El equipo)" data-en="(The team)">(El equipo)</em>
 						<div class="manifesto-rule"></div>
 						<div class="manifesto-fact"><strong>4</strong><span data-es="capacidades conectadas: automatización, datos, producto y equipo" data-en="connected capabilities: automation, data, product and team">capacidades conectadas: automatización, datos, producto y equipo</span></div>
 						<div class="manifesto-rule"></div>
@@ -139,19 +149,19 @@ const sharedHoursDestinations = [
 						<div class="manifesto-rule"></div>
 					</div>
 					<div class="manifesto-main">
-						<p id="manifesto-title" class="manifesto-copy" data-manifesto aria-label={manifestoText}>{manifestoWords.map((word, index) => [<span class="word" aria-hidden="true">{word}</span>, index < manifestoWords.length - 1 ? ' ' : ''])}</p>
+						<p id="manifesto-title" class="manifesto-copy" data-manifesto aria-label={manifestoText} data-es-aria={manifestoText} data-en-aria={manifestoTextEn}>{manifestoWords.map((word, index) => [<span class="word" aria-hidden="true" data-es={word} data-en={manifestoWordsEn[index]}>{word}</span>, index < manifestoWords.length - 1 ? ' ' : ''])}</p>
 						<p class="manifesto-secondary" data-es="Un solo equipo, de la primera conversación a la entrega. Siempre sabes quién diseña, quién desarrolla y quién responde." data-en="One team, from the first conversation to delivery. You always know who designs, who builds and who responds.">Un solo equipo, de la primera conversación a la entrega. Siempre sabes quién diseña, quién desarrolla y quién responde.</p>
 					</div>
 				</section>
 
 				<section class="section locations-section" id="soluciones" aria-labelledby="locations-title">
 					<div class="locations-copy">
-						<em>(Dónde trabajamos)</em>
-						<h2 id="locations-title"><span>COLOMBIA,</span><em>en tu zona horaria.</em></h2>
+						<em data-es="(Dónde trabajamos)" data-en="(Where we work)">(Dónde trabajamos)</em>
+						<h2 id="locations-title"><span data-es="COLOMBIA," data-en="COLOMBIA,">COLOMBIA,</span><em data-es="en tu zona horaria." data-en="in your time zone.">en tu zona horaria.</em></h2>
 						<p data-es="Un equipo bilingüe que trabaja en horario de Norteamérica y se conecta con tu operación donde esté." data-en="A bilingual team working North American hours, connecting with your operation wherever it is.">Un equipo bilingüe que trabaja en horario de Norteamérica y se conecta con tu operación donde esté.</p>
 						<section class="shared-hours" aria-labelledby="shared-hours-title">
-							<h3 id="shared-hours-title">(Horas compartidas con Colombia)</h3>
-							<div class="shared-hours-list" data-shared-hours-list role="list" aria-label="Horas compartidas con Colombia">
+							<h3 id="shared-hours-title" data-es="(Horas compartidas con Colombia)" data-en="(Shared hours with Colombia)">(Horas compartidas con Colombia)</h3>
+							<div class="shared-hours-list" data-shared-hours-list role="list" aria-label="Horas compartidas con Colombia" data-es-aria="Horas compartidas con Colombia" data-en-aria="Shared hours with Colombia">
 								{sharedHoursDestinations.map(([name, timeZone]) => (
 									<div class="shared-hours-row" data-shared-hours-row data-destination-name={name} data-time-zone={timeZone} role="listitem" tabindex="0" aria-label={`${name}: calculando horas compartidas con Colombia`}>
 										<div class="shared-hours-meta"><strong>{name}</strong><span data-hours-summary>Calculando</span></div>
@@ -164,10 +174,14 @@ const sharedHoursDestinations = [
 					</div>
 					<GlobeScene />
 				</section>
+				<Capacidades />
+				<Metodo />
+				<Servicios />
+				<SkillsEquipo />
 
 				<section class="section industries-section" id="industrias" aria-labelledby="industry-title">
 					<div class="section-heading reveal"><h2 id="industry-title" data-es="Conocemos operaciones complejas" data-en="We know complex operations">Conocemos operaciones complejas</h2><p data-es="Trabajamos donde cada retraso cuesta tiempo: rutas, turnos, pedidos y conversaciones con clientes." data-en="We work where every delay costs time: routes, shifts, orders and customer conversations.">Trabajamos donde cada retraso cuesta tiempo: rutas, turnos, pedidos y conversaciones con clientes.</p></div>
-					<div class="photo-rail" aria-label="Escenas de trabajo y operación"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Espacio de trabajo amplio y luminoso" /><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Persona trabajando con un portátil y datos" /><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Equipo trabajando en una oficina" /></div>
+					<div class="photo-rail" aria-label="Escenas de trabajo y operación" data-es-aria="Escenas de trabajo y operación" data-en-aria="Work and operations scenes"><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Espacio de trabajo amplio y luminoso" data-es-alt="Espacio de trabajo amplio y luminoso" data-en-alt="Bright, spacious workspace" /><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Persona trabajando con un portátil y datos" data-es-alt="Persona trabajando con un portátil y datos" data-en-alt="Person working with a laptop and data" /><img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1000&q=82" width="1000" height="620" alt="Equipo trabajando en una oficina" data-es-alt="Equipo trabajando en una oficina" data-en-alt="Team working in an office" /></div>
 					<div class="industry-strip">{industries.map((industry, index) => <div class="industry-item reveal" style={`--delay: ${index * 60}ms`}><h3 data-es={industry} data-en={['Logistics', 'Delivery', 'WFM', 'Contact center'][index]}>{industry}</h3></div>)}</div>
 				</section>
 
@@ -190,21 +204,17 @@ const sharedHoursDestinations = [
 
 				<section class="section team-section" aria-labelledby="team-title">
 					<div class="section-heading reveal"><h2 id="team-title" data-es="Un equipo cerca" data-en="A team nearby">Un equipo cerca</h2><p data-es="Somos un equipo bilingüe en Colombia, alineado con Estados Unidos y con el contexto para hablar de operación, no solo de entregables." data-en="We are a bilingual team in Colombia, aligned with the US and close enough to talk operations, not just deliverables.">Somos un equipo bilingüe en Colombia, alineado con Estados Unidos y con el contexto para hablar de operación, no solo de entregables.</p></div>
-					<div class="team-grid">{team.map(([name, role], index) => <div class="team-item reveal" style={`--delay: ${index * 70}ms`}><strong>{name}</strong><span>{role}</span></div>)}</div>
+					<div class="team-grid">{team.map(([name, role], index) => <div class="team-item reveal" style={`--delay: ${index * 70}ms`}><strong data-es={name} data-en={name}>{name}</strong><span data-es={['Liderazgo de ingeniería', 'Producto y delivery', 'Datos y automatización', 'Socio nearshore'][index]} data-en={role}>{['Liderazgo de ingeniería', 'Producto y delivery', 'Datos y automatización', 'Socio nearshore'][index]}</span></div>)}</div>
 				</section>
 
 				<section class="section stack-section" aria-labelledby="stack-title">
-					<div class="stack-line reveal"><strong id="stack-title" data-i18n="stackTitle">Construimos con criterio:</strong><span>APIs</span><span>Data</span><span>Cloud</span><span>IA aplicada</span><span>Apps internas</span><span>Integraciones</span></div>
+					<div class="stack-line reveal"><strong id="stack-title" data-es="Construimos con criterio:" data-en="We build with judgment:">Construimos con criterio:</strong><span>APIs</span><span>Data</span><span>Cloud</span><span data-es="IA aplicada" data-en="Applied AI">IA aplicada</span><span data-es="Apps internas" data-en="Internal apps">Apps internas</span><span data-es="Integraciones" data-en="Integrations">Integraciones</span></div>
 				</section>
 
-				<section class="contact reveal" id="contacto" aria-labelledby="contact-title">
-					<div class="contact-heading"><h2 id="contact-title" data-i18n="contactTitle">Hablemos del problema.</h2><p data-i18n="contactIntro">Cuéntanos qué parte de tu operación necesita claridad. Te responderemos con preguntas útiles, no con una presentación prefabricada.</p></div>
-					<form class="contact-form" data-contact-form><label for="name">Nombre</label><input id="name" name="name" autocomplete="name" placeholder="Tu nombre" data-es="Tu nombre" data-en="Your name" required /><label for="email">Correo</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Tu correo de trabajo" data-es="Tu correo de trabajo" data-en="Your work email" required /><button type="submit" data-i18n="contactButton">Solicitar conversación ↗</button></form>
-					<p class="contact-note" data-form-status aria-live="polite"><span class="placeholder-note">[PLACEHOLDER:</span> conecta aquí tu agenda o endpoint de contacto <span class="placeholder-note">]</span></p>
-				</section>
+				<ContactoFinal />
 			</main>
+			<FooterFinal />
 
-			<footer class="site-footer"><a class="brand-lockup" href="/" aria-label="HELIX, inicio"><img src="/helix-emblem.png" width="32" height="32" alt="" /><span>HELIX</span></a><span>HELIX · Colombia</span><span class="colombia-time" data-colombia-time aria-label="Hora de Colombia"></span><a href="#top" data-i18n="footerBack">Volver arriba ↑</a><div class="language-switcher" aria-label="Selector de idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div></footer>
 		</div>
 
 		<script>
@@ -316,13 +326,41 @@ const sharedHoursDestinations = [
 			const translations = {
 				en: { navSolutions: 'What we solve', navProcess: 'How we work', navCases: 'Cases', navCta: 'Let’s talk', heroVisual: 'Operations have a shape. We find it with you.', heroStatement: 'Close engineering for specific operational problems.', heroSupport: 'We connect your systems, data and AI inside delivery. No generic solution pitch.', heroCtaText: 'The opportunity is solving better.', heroCta: 'Scope your project ↗', solutionsTitle: 'What we unlock', solutionsIntro: 'When work depends on five systems, three spreadsheets and too many messages, the problem is not a missing app. It is the missing connection between what you already have.', capabilityLead: 'Less friction. More control.', capabilitySub: 'We work where strategy becomes operations: decisions, exceptions and the next move.', capabilityCta: 'Tell us where it gets stuck →', industryTitle: 'Where we know the terrain', industryIntro: 'We do not start with technology. We start with the shift that does not add up, the order that gets lost and the customer waiting for an answer.', processTitle: 'From problem to change.', processIntro: 'Every project starts with a conversation about the real workflow. We choose the collaboration model that keeps context and delivers value early.', step1Title: 'Understand', step1Text: 'Map decisions, systems, data and exceptions.', step2Title: 'Focus', step2Text: 'Choose a first improvement that can be tested and used.', step3Title: 'Build', step3Text: 'Design, integrate and deliver alongside your team.', step4Title: 'Learn', step4Text: 'Measure what changed and choose the next cycle.', casesTitle: 'Work that still needs a name.', casesIntro: 'These cases are the site’s proof structure. Real details go here when you have them.', teamTitle: 'Close enough to move.', teamIntro: 'A bilingual team in Colombia, aligned with US time zones and with enough context to talk operations, not just deliverables.', stackTitle: 'We build with judgment:', contactTitle: 'Let’s talk about the problem.', contactIntro: 'Tell us which part of your operation needs clarity. We will answer with useful questions, not a prefabricated deck.', contactButton: 'Request a conversation ↗', footerBack: 'Back to top ↑' }
 			};
-			const setLanguage = (language) => { document.documentElement.lang = language; document.querySelectorAll('[data-lang]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lang === language))); document.querySelectorAll('[data-i18n], [data-en]').forEach((node) => { const key = node.dataset.i18n; if (language === 'en') node.dataset.es ||= node instanceof HTMLInputElement ? node.placeholder : node.textContent; const value = language === 'es' ? node.dataset.es : node.dataset.en || translations.en[key]; if (!value) return; if (node instanceof HTMLInputElement) node.placeholder = value; else node.textContent = value; }); };
+			const setLanguage = (language) => {
+				const nextLanguage = language === 'en' ? 'en' : 'es';
+				document.documentElement.lang = nextLanguage;
+				try { window.localStorage.setItem('helix-language', nextLanguage); } catch {}
+				document.querySelectorAll('[data-lang]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.lang === nextLanguage)));
+				document.querySelectorAll('[data-i18n], [data-en], [data-es]').forEach((node) => {
+					const key = node.dataset.i18n;
+					const value = nextLanguage === 'es' ? node.dataset.es : node.dataset.en || translations.en[key];
+					if (!value) return;
+					if (node instanceof HTMLInputElement || node instanceof HTMLTextAreaElement) node.placeholder = value;
+					else node.textContent = value;
+				});
+				document.querySelectorAll('[data-es-aria], [data-en-aria]').forEach((node) => {
+					const value = nextLanguage === 'es' ? node.dataset.esAria : node.dataset.enAria;
+					if (value) node.setAttribute('aria-label', value);
+				});
+				document.querySelectorAll('[data-es-alt], [data-en-alt]').forEach((node) => {
+					const value = nextLanguage === 'es' ? node.dataset.esAlt : node.dataset.enAlt;
+					if (value) node.setAttribute('alt', value);
+				});
+				document.title = nextLanguage === 'es' ? 'HELIX · Ingeniería para operaciones reales' : 'HELIX · Engineering for real operations';
+				document.querySelector('meta[name="description"]')?.setAttribute('content', nextLanguage === 'es' ? 'HELIX integra sistemas, datos e IA para resolver problemas operativos específicos.' : 'HELIX integrates systems, data and AI to solve specific operational problems.');
+				document.querySelector('meta[property="og:title"]')?.setAttribute('content', document.title);
+				window.dispatchEvent(new CustomEvent('helix-language-change', { detail: nextLanguage }));
+			};
 			document.querySelectorAll('[data-lang]').forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.lang)));
-			document.querySelector('[data-contact-form]')?.addEventListener('submit', (event) => { event.preventDefault(); const status = document.querySelector('[data-form-status]'); if (status) status.innerHTML = '<strong>Gracias.</strong> <span class="placeholder-note">[PLACEHOLDER: conecta aquí tu agenda o endpoint de contacto]</span>'; });
+			document.querySelector('[data-contact-form]')?.addEventListener('submit', (event) => { event.preventDefault(); const status = document.querySelector('[data-form-status]'); if (status) status.innerHTML = document.documentElement.lang === 'en' ? '<strong>Thanks.</strong> We will be in touch with useful questions.' : '<strong>Gracias.</strong> Te responderemos con preguntas útiles.'; });
+			let savedLanguage = 'es';
+			try { savedLanguage = window.localStorage.getItem('helix-language') || 'es'; } catch {}
+			setLanguage(savedLanguage);
 			const colombiaTime = document.querySelector('[data-colombia-time]');
 			const updateColombiaTime = () => { if (colombiaTime) colombiaTime.textContent = `Bogotá ${new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date())}`; };
 			updateColombiaTime();
 			window.setInterval(updateColombiaTime, 60000);
 		</script>
+		<ScrollProgress />
 	</body>
 </html>

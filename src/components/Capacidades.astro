@@ -1,0 +1,162 @@
+---
+import '../styles/sections/capacidades.css';
+
+const cards = [
+	{
+		id: 'cap-infraestructura',
+		label: 'INFRAESTRUCTURA',
+		labelEn: 'INFRASTRUCTURE',
+		title: 'Servidor privado físico, bajo nuestro control.',
+		titleEn: 'A private physical server, under our control.',
+		text: 'Tu operación corre en infraestructura dedicada que administramos nosotros, no en un servicio compartido.',
+		textEn: 'Your operation runs on dedicated infrastructure we manage, not on a shared service.',
+		dataLabel: 'UBICACIÓN',
+		dataLabelEn: 'LOCATION',
+		dataValue: 'Colombia',
+		kind: 'server',
+		theme: 'infra',
+		image: '/images/infra/servidor.jpg',
+		imageAlt: 'Filas de servidores en una infraestructura privada',
+		imageAltEn: 'Rows of servers in private infrastructure',
+	},
+	{
+		id: 'cap-equipo',
+		label: 'EQUIPO',
+		labelEn: 'TEAM',
+		title: 'Gente con experiencia real en producción.',
+		titleEn: 'People with real production experience.',
+		text: 'Desarrolladores que ya han llevado integraciones, datos y productos a medida a sistemas operativos reales.',
+		textEn: 'Developers who have taken integrations, data and custom products into real operational systems.',
+		dataLabel: 'IDIOMAS',
+		dataLabelEn: 'LANGUAGES',
+		dataValue: 'ES · EN',
+		kind: 'team',
+		theme: 'team',
+		image: '/images/infra/equipo.webp',
+		imageAlt: 'Equipo de desarrollo trabajando en producción',
+		imageAltEn: 'Development team working in production',
+	},
+	{
+		id: 'cap-proceso',
+		label: 'PROCESO',
+		labelEn: 'PROCESS',
+		title: 'IA dentro de cada entrega.',
+		titleEn: 'AI inside every delivery.',
+		text: 'Usamos IA en el desarrollo para avanzar más rápido y dedicar el tiempo a entender tu operación.',
+		textEn: 'We use AI in development to move faster and spend more time understanding your operation.',
+		dataLabel: 'ENFOQUE',
+		dataLabelEn: 'FOCUS',
+		dataValue: 'IA integrada',
+		dataValueEn: 'Integrated AI',
+		kind: 'chip',
+		theme: 'process',
+		image: '/images/infra/proceso.jpg',
+		imageAlt: 'Interfaz visual de inteligencia artificial',
+		imageAltEn: 'Visual interface for artificial intelligence',
+	},
+];
+---
+
+<section class="capabilities-section" id="capacidades" aria-labelledby="capabilities-title" data-capabilities>
+	<div class="capabilities-layout">
+		<div class="capabilities-sticky">
+			<div class="capabilities-intro">
+				<p class="capabilities-label"><span aria-hidden="true"></span><span data-es="(Capacidades)" data-en="(Capabilities)">(Capacidades)</span></p>
+				<h2 id="capabilities-title">
+						<span data-es="INFRAESTRUCTURA PROPIA," data-en="OUR OWN INFRASTRUCTURE,">INFRAESTRUCTURA PROPIA,</span>
+						<em data-es="equipo con oficio." data-en="a team with craft.">equipo con oficio.</em>
+				</h2>
+				<p class="capabilities-lede" data-es="Software hecho por un equipo con experiencia, sobre infraestructura que controlamos de principio a fin." data-en="Software built by an experienced team, on infrastructure we control from end to end.">Software hecho por un equipo con experiencia, sobre infraestructura que controlamos de principio a fin.</p>
+			</div>
+
+				<nav class="capabilities-index" aria-label="Capacidades" data-es-aria="Capacidades" data-en-aria="Capabilities">
+				{cards.map((card, index) => (
+					<a href={`#${card.id}`} class:list={{ 'is-active': index === 0 }} aria-current={index === 0 ? 'true' : undefined} data-cap-index={index}>
+							<span data-es={card.label} data-en={card.labelEn}>{card.label}</span>
+						<span aria-hidden="true"></span>
+					</a>
+				))}
+			</nav>
+		</div>
+
+		<div class="capabilities-cards" data-cap-cards>
+			{cards.map((card) => (
+				<article class={`capability-card capability-card--${card.theme}`} id={card.id} data-cap-card>
+					<div class="capability-card-media">
+						<img src={card.image} width="1600" height="1000" loading="lazy" decoding="async" alt={card.imageAlt} data-es-alt={card.imageAlt} data-en-alt={card.imageAltEn} />
+						<div class="capability-card-duotone" aria-hidden="true"></div>
+						<div class="capability-card-gradient" aria-hidden="true"></div>
+					</div>
+					<div class="capability-card-top">
+						<div class="capability-icon" aria-hidden="true">
+							{card.kind === 'server' && (
+								<svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3.5" width="16" height="5" rx="1" /><rect x="4" y="10" width="16" height="5" rx="1" /><rect x="4" y="16.5" width="16" height="4" rx="1" /><path d="M7 6h.01M7 12.5h.01M7 18.5h.01" /></svg>
+							)}
+							{card.kind === 'team' && (
+								<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.25" /><path d="M3.5 19c.45-3.1 2.3-4.75 5.5-4.75s5.05 1.65 5.5 4.75M14 14.5c2.85-.25 4.75 1.25 5.25 4.5" /></svg>
+							)}
+							{card.kind === 'chip' && (
+								<svg viewBox="0 0 24 24" fill="none"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5" /><path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3M10 10h4v4h-4z" /></svg>
+							)}
+						</div>
+						<span class="capability-card-label" data-es={card.label} data-en={card.labelEn}>{card.label}</span>
+					</div>
+					<div class="capability-card-content">
+						<h3 data-es={card.title} data-en={card.titleEn}>{card.title}</h3>
+						<p data-es={card.text} data-en={card.textEn}>{card.text}</p>
+						<dl><div><dt data-es={card.dataLabel} data-en={card.dataLabelEn}>{card.dataLabel}</dt><dd data-es={card.dataValue} data-en={card.dataValueEn || card.dataValue}>{card.dataValue}</dd></div></dl>
+					</div>
+				</article>
+			))}
+		</div>
+	</div>
+</section>
+
+<script>
+	const section = document.querySelector('[data-capabilities]');
+	const cards = section ? [...section.querySelectorAll('[data-cap-card]')] : [];
+	const indexLinks = section ? [...section.querySelectorAll('[data-cap-index]')] : [];
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	const setActive = (activeIndex) => {
+		indexLinks.forEach((link, index) => {
+			const active = index === activeIndex;
+			link.classList.toggle('is-active', active);
+			if (active) link.setAttribute('aria-current', 'true');
+			else link.removeAttribute('aria-current');
+		});
+	};
+
+	const observer = cards.length
+		? new IntersectionObserver((entries) => {
+			const visible = entries
+				.filter((entry) => entry.isIntersecting)
+				.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+			if (visible) setActive(cards.indexOf(visible.target));
+		}, { rootMargin: '-45% 0px -45% 0px', threshold: [0, .25, .6, 1] })
+		: null;
+	cards.forEach((card) => observer?.observe(card));
+
+	let frame = 0;
+	const updateParallax = () => {
+		if (!reducedMotion) {
+			cards.forEach((card) => {
+				const rect = card.getBoundingClientRect();
+				const progress = Math.max(-1, Math.min(1, (window.innerHeight * .5 - (rect.top + rect.height * .5)) / (window.innerHeight + rect.height)));
+				card.style.setProperty('--cap-image-shift', `${progress * 6}%`);
+			});
+		}
+		frame = 0;
+	};
+	const onScroll = () => {
+		if (!frame) frame = requestAnimationFrame(updateParallax);
+	};
+	window.addEventListener('scroll', onScroll, { passive: true });
+	updateParallax();
+
+	window.addEventListener('pagehide', () => {
+		observer?.disconnect();
+		window.removeEventListener('scroll', onScroll);
+		cancelAnimationFrame(frame);
+	});
+</script>

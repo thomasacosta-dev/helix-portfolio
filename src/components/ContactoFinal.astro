@@ -1,0 +1,26 @@
+---
+import '../styles/sections/contacto-final.css';
+---
+
+<section class="final-contact" id="contacto" aria-labelledby="final-contact-title">
+	<div class="final-contact-grid">
+		<div class="final-contact-intro">
+			<p class="final-contact-kicker"><span></span> <span data-es="UN ESPACIO PARA EMPEZAR" data-en="A PLACE TO START">UN ESPACIO PARA EMPEZAR</span></p>
+			<h2 id="final-contact-title" data-es="Hablemos de lo que está frenando tu operación." data-en="Let’s talk about what is slowing your operation.">Hablemos de lo que está frenando tu operación.</h2>
+			<a class="final-contact-email" href="mailto:hola@helix.co">hola@helix.co</a>
+			<p class="final-contact-note" data-es="Tres preguntas, una conversación útil. Cuéntanos dónde se atasca el trabajo y respondemos con contexto." data-en="Three questions, one useful conversation. Tell us where work gets stuck and we will respond with context.">Tres preguntas, una conversación útil. Cuéntanos dónde se atasca el trabajo y respondemos con contexto.</p>
+		</div>
+		<form class="final-contact-form" data-contact-form>
+			<div class="final-form-top"><strong>01 <em>/ 03</em></strong><span data-es="Cuéntanos sobre ti" data-en="Tell us about you">Cuéntanos sobre ti</span></div>
+			<label for="name" data-es="Nombre" data-en="Name">Nombre</label>
+			<input id="name" name="name" autocomplete="name" placeholder="Tu nombre" data-es="Tu nombre" data-en="Your name" required />
+			<label for="email" data-es="Correo" data-en="Email">Correo</label>
+			<input id="email" name="email" type="email" autocomplete="email" placeholder="Tu correo de trabajo" data-es="Tu correo de trabajo" data-en="Your work email" required />
+			<label for="message" data-es="Qué necesitas resolver" data-en="What do you need to solve">Qué necesitas resolver</label>
+			<textarea id="message" name="message" rows="3" placeholder="Qué necesitas resolver" data-es="Qué necesitas resolver" data-en="What do you need to solve"></textarea>
+			<button type="submit"><span></span> <span data-es="Continuar" data-en="Continue">Continuar</span> <b aria-hidden="true">↗</b></button>
+			<div class="final-form-progress" aria-hidden="true"><span></span></div>
+			<p class="final-form-status" data-form-status aria-live="polite" data-es="Respondemos con preguntas útiles." data-en="We respond with useful questions.">Respondemos con preguntas útiles.</p>
+		</form>
+	</div>
+</section>

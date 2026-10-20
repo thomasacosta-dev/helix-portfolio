@@ -1,0 +1,265 @@
+---
+import '../styles/sections/skills-equipo.css';
+
+const SKILLS = [
+	'Análisis y gestión de datos',
+	'Planificación y organización de procesos',
+	'Desarrollo y gestión de tiendas virtuales',
+	'Workforce Management (WFM)',
+	'PHP',
+	'Laravel',
+	'APIs REST',
+	'CRUD',
+	'Lógica de negocio',
+	'MySQL',
+	'MariaDB',
+	'SQL',
+	'Relaciones entre tablas',
+	'JSON',
+	'HTTP',
+	'Autenticación',
+	'Webhooks',
+	'APIs de Meta y WhatsApp Business',
+	'Hostinger',
+	'AWS',
+	'Migración de entornos de hosting',
+	'Configuración y despliegue de aplicaciones',
+	'Git',
+	'GitHub',
+	'Postman',
+	'Composer',
+	'Linux / Ubuntu',
+	'Integración de APIs de IA',
+	'Prompt engineering',
+	'Machine Learning',
+	'Adaptabilidad tecnológica',
+	'Diseño de interfaces UI y experiencia UX',
+	'Desarrollo de interfaces con CSS',
+	'Diseño responsive',
+	'Programación con JavaScript',
+	'Desarrollo web con React y Vue',
+	'Arquitecturas basadas en componentes',
+	'Pruebas y validación de aplicaciones web',
+	'Identificación y corrección de errores',
+	'Depuración de código',
+];
+const SKILLS_EN = [
+	'Data analysis and management',
+	'Process planning and organization',
+	'Online store development and management',
+	'Workforce Management (WFM)',
+	'PHP',
+	'Laravel',
+	'REST APIs',
+	'CRUD',
+	'Business logic',
+	'MySQL',
+	'MariaDB',
+	'SQL',
+	'Table relationships',
+	'JSON',
+	'HTTP',
+	'Authentication',
+	'Webhooks',
+	'Meta and WhatsApp Business APIs',
+	'Hostinger',
+	'AWS',
+	'Hosting environment migration',
+	'Application configuration and deployment',
+	'Git',
+	'GitHub',
+	'Postman',
+	'Composer',
+	'Linux / Ubuntu',
+	'AI API integration',
+	'Prompt engineering',
+	'Machine Learning',
+	'Technology adaptability',
+	'UI and UX design',
+	'Interface development with CSS',
+	'Responsive design',
+	'JavaScript programming',
+	'Web development with React and Vue',
+	'Component-based architectures',
+	'Web application testing and validation',
+	'Error identification and correction',
+	'Code debugging',
+];
+
+const skillGroups = [
+	{
+		label: 'DATA · PLANIFICACIÓN · GESTIÓN', labelEn: 'DATA · PLANNING · MANAGEMENT',
+		items: [['Datos', 'Data'], ['Procesos', 'Processes'], ['Tiendas virtuales', 'Online stores'], ['WFM', 'WFM']],
+	},
+	{
+		label: 'BACKEND · DATOS', labelEn: 'BACKEND · DATA',
+		items: [['PHP', 'PHP'], ['Laravel', 'Laravel'], ['APIs REST', 'REST APIs'], ['CRUD', 'CRUD'], ['Lógica de negocio', 'Business logic'], ['MySQL', 'MySQL'], ['MariaDB', 'MariaDB'], ['SQL', 'SQL'], ['Relaciones entre tablas', 'Table relationships']],
+	},
+	{
+		label: 'INTEGRACIÓN · CLOUD', labelEn: 'INTEGRATION · CLOUD',
+		items: [['JSON', 'JSON'], ['HTTP', 'HTTP'], ['Autenticación', 'Authentication'], ['Webhooks', 'Webhooks'], ['Meta · WhatsApp Business', 'Meta · WhatsApp Business'], ['Hostinger', 'Hostinger'], ['AWS', 'AWS'], ['Migración de hosting', 'Hosting migration'], ['Despliegue', 'Deployment']],
+	},
+	{
+		label: 'FRONTEND · DISEÑO', labelEn: 'FRONTEND · DESIGN',
+		items: [['UI / UX', 'UI / UX'], ['CSS', 'CSS'], ['Responsive', 'Responsive'], ['JavaScript', 'JavaScript'], ['React', 'React'], ['Vue', 'Vue'], ['Componentes', 'Components']],
+	},
+	{
+		label: 'HERRAMIENTAS · IA', labelEn: 'TOOLS · AI',
+		items: [['Git', 'Git'], ['GitHub', 'GitHub'], ['Postman', 'Postman'], ['Composer', 'Composer'], ['Linux / Ubuntu', 'Linux / Ubuntu'], ['APIs de IA', 'AI APIs'], ['Prompt engineering', 'Prompt engineering'], ['Machine Learning', 'Machine Learning']],
+	},
+	{
+		label: 'CALIDAD · ADAPTABILIDAD', labelEn: 'QUALITY · ADAPTABILITY',
+		items: [['Pruebas', 'Testing'], ['Validación', 'Validation'], ['Errores', 'Errors'], ['Depuración', 'Debugging'], ['Adaptabilidad tecnológica', 'Technology adaptability']],
+	},
+];
+
+const stages = [
+	{ name: 'BASE', line: 'Entendemos cómo trabaja tu equipo.', lineEn: 'We understand how your team works.' },
+	{ name: 'CONECTA', line: 'Diseñamos interfaces que conectan la operación.', lineEn: 'We design interfaces that connect the operation.' },
+	{ name: 'ESCALA', line: 'Probamos, depuramos y dejamos espacio para crecer.', lineEn: 'We test, debug and leave room to grow.' },
+];
+---
+
+<section class="skills-section" id="skills-equipo" aria-labelledby="skills-title" data-skills-section>
+	<div class="skills-stage">
+		<canvas class="skills-code-canvas" data-skills-canvas aria-hidden="true"></canvas>
+		<div class="skills-copy">
+			<p class="skills-kicker" data-es="HABILIDADES DEL EQUIPO" data-en="TEAM SKILLS">HABILIDADES DEL EQUIPO</p>
+			<h2 id="skills-title" class="skills-count" data-skills-count>0</h2>
+			<p class="skills-count-label" data-es="HABILIDADES ACTIVAS" data-en="ACTIVE SKILLS">HABILIDADES ACTIVAS</p>
+			<div class="skills-stage-copy">
+				<div class="skills-stage-marker"><span aria-hidden="true"></span><strong data-stage-name>BASE</strong></div>
+				<p class="skills-stage-line" data-stage-line>{stages[0].line}</p>
+				<div class="skills-stage-rule" aria-hidden="true"></div>
+				<p class="skills-description" data-es="Un equipo que piensa la operación, diseña la experiencia y prueba cada detalle antes de entregarlo." data-en="A team that thinks through operations, designs the experience and tests every detail before delivery.">Un equipo que piensa la operación, diseña la experiencia y prueba cada detalle antes de entregarlo.</p>
+			</div>
+		</div>
+		<div class="skills-atlas" aria-label="Áreas de habilidad">
+			<div class="skills-atlas-header">
+				<span data-es="LO QUE SABEMOS HACER" data-en="WHAT WE KNOW">LO QUE SABEMOS HACER</span>
+				<span aria-hidden="true">/ HELIX TEAM INDEX</span>
+			</div>
+			<div class="skills-atlas-grid">
+				{skillGroups.map((group, groupIndex) => (
+					<div class:list={['skills-atlas-column', `skills-atlas-column-${groupIndex + 1}`]}>
+						<p data-es={group.label} data-en={group.labelEn}>{group.label}</p>
+						<ul>
+							{group.items.map(([item, itemEn], itemIndex) => (
+								<li style={`--skill-index: ${itemIndex + groupIndex * 2}`}>
+									<span class="skills-atlas-marker" aria-hidden="true"></span>
+									<strong data-es={item} data-en={itemEn}>{item}</strong>
+								</li>
+							))}
+						</ul>
+					</div>
+				))}
+			</div>
+		</div>
+		<p class="skills-live" data-skills-live aria-live="polite"></p>
+	</div>
+	<ul class="visually-hidden" aria-label="Habilidades del equipo">
+		{SKILLS.map((skill, index) => <li data-es={skill} data-en={SKILLS_EN[index]}>{skill}</li>)}
+	</ul>
+</section>
+
+<script define:vars={{ total: skillGroups.reduce((count, group) => count + group.items.length, 0), stages }}>
+	const root = document.querySelector('[data-skills-section]');
+	const count = root?.querySelector('[data-skills-count]');
+	const stageName = root?.querySelector('[data-stage-name]');
+	const stageLine = root?.querySelector('[data-stage-line]');
+	const live = root?.querySelector('[data-skills-live]');
+	const canvas = root?.querySelector('[data-skills-canvas]');
+	const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	let started = false;
+	let context;
+	let width = 0;
+	let height = 0;
+	let columns = [];
+	let visible = false;
+	let countValue = 0;
+	let countAnimationFrame = 0;
+
+	const updateStage = (index) => {
+		const stage = stages[index];
+		if (!stage || !count || !stageName || !stageLine) return;
+		const english = document.documentElement.lang === 'en';
+		stageName.textContent = stage.name;
+		stageLine.textContent = english ? stage.lineEn : stage.line;
+		stageLine.classList.remove('is-changing');
+		if (!reduce) requestAnimationFrame(() => stageLine.classList.add('is-changing'));
+		live.textContent = `${stage.name}: ${english ? stage.lineEn : stage.line}`;
+	};
+
+	const resizeCanvas = () => {
+		if (!canvas || window.innerWidth < 900 || reduce) return;
+		const rect = root.querySelector('.skills-stage').getBoundingClientRect();
+		const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+		width = rect.width;
+		height = rect.height;
+		canvas.width = Math.round(width * dpr);
+		canvas.height = Math.round(height * dpr);
+		canvas.style.width = `${width}px`;
+		canvas.style.height = `${height}px`;
+		context = canvas.getContext('2d');
+		context?.setTransform(dpr, 0, 0, dpr, 0, 0);
+		columns = Array.from({ length: 38 }, (_, index) => ({ x: index * width / 38, y: Math.random() * height, next: 0, char: '0' }));
+	};
+
+	const animateCanvas = (time) => {
+		if (!context || !columns.length || !visible) return;
+		context.clearRect(0, 0, width, height);
+		context.fillStyle = 'rgba(236, 232, 225, .045)';
+		context.font = '11px ui-monospace, SFMono-Regular, Menlo, monospace';
+		columns.forEach((column) => {
+			if (time > column.next) {
+				column.char = '0 1 { } < / > ;'.split('')[Math.floor(Math.random() * 15)];
+				column.next = time + 400 + Math.random() * 500;
+			}
+			column.y = (column.y + .12) % (height + 20);
+			context.fillText(column.char, column.x, column.y);
+		});
+	};
+
+	const start = () => {
+		if (started) return;
+		started = true;
+		if (reduce) {
+			updateStage(2);
+			return;
+		}
+		const countStart = performance.now();
+		const countDuration = 4050;
+		const animateCount = (time) => {
+			const progress = Math.min(1, (time - countStart) / countDuration);
+			const eased = 1 - (1 - progress) ** 2.4;
+			countValue = total * eased;
+			count.textContent = String(Math.round(countValue));
+			if (progress < 1) {
+				countAnimationFrame = requestAnimationFrame(animateCount);
+			} else {
+				countValue = total;
+				count.textContent = String(total);
+				countAnimationFrame = 0;
+			}
+		};
+		countAnimationFrame = requestAnimationFrame(animateCount);
+		stages.forEach((_, index) => window.setTimeout(() => updateStage(index), index * 1350));
+	};
+
+	window.addEventListener('helix-language-change', () => {
+		const activeStage = stages.findIndex(({ name }) => name === stageName?.textContent) || 0;
+		updateStage(activeStage);
+	});
+
+	if (root && count) {
+		document.documentElement.classList.add('js');
+		const observer = new IntersectionObserver(([entry]) => {
+			visible = entry.isIntersecting;
+			if (visible) start();
+		}, { threshold: .25 });
+		observer.observe(root);
+		resizeCanvas();
+		window.addEventListener('resize', resizeCanvas, { passive: true });
+		window.addEventListener('helix-tick', (event) => animateCanvas(event.detail.time * 1000));
+	}
+</script>

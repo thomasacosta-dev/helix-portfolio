@@ -1,0 +1,285 @@
+---
+import '../styles/sections/metodo.css';
+
+const phases = [
+	{
+		number: '01',
+		title: 'Lanzar.',
+		lead: 'Empezamos por lo que más duele y se resuelve rápido.', leadEn: 'We start with what hurts most and can be solved quickly.',
+		items: ['sitios con propósito, no plantillas', 'automatizaciones que conectan tus herramientas', 'tableros que muestran qué pasa y qué sigue'], itemsEn: ['purposeful sites, not templates', 'automations that connect your tools', 'dashboards that show what is happening and what comes next'],
+	},
+	{
+		number: '02',
+		title: 'Escalar.',
+		lead: 'Cuando lo primero funciona, lo hacemos crecer.', leadEn: 'When the first step works, we help it grow.',
+		items: ['asistentes de IA conectados a tus sistemas y datos', 'desarrollo a medida para lo que ninguna herramienta cubre', 'medimos qué cambió y decidimos juntos el siguiente paso'], itemsEn: ['AI assistants connected to your systems and data', 'custom development for what no tool covers', 'we measure what changed and choose the next step together'],
+	},
+	{
+		number: '03',
+		title: 'Expandir.',
+		lead: 'Sumamos capacidad cuando el trabajo lo pide.', leadEn: 'We add capacity when the work calls for it.',
+		items: ['equipo dedicado, bilingüe y en tu zona horaria', 'el mismo equipo que ya conoce tu operación', 'crecemos al ritmo de tu negocio'], itemsEn: ['a dedicated bilingual team in your time zone', 'the same team that already knows your operation', 'we grow at your business’s pace'],
+	},
+];
+---
+
+<section class="method-section-new" id="metodo" aria-labelledby="method-title" data-method>
+	<div class="method-horizontal" data-method-horizontal>
+		<div class="method-pin" data-method-pin>
+			<div class="method-intro" data-method-intro>
+				<canvas class="method-swarm" data-method-swarm aria-hidden="true"></canvas>
+				<div class="method-intro-content">
+					<p class="method-kicker" data-es="[ EL MÉTODO ]" data-en="[ THE METHOD ]">[ EL MÉTODO ]</p>
+					<h2 id="method-title" data-es="Tres fases." data-en="Three phases.">Tres fases.<span aria-hidden="true"></span></h2>
+					<p class="method-intro-copy" data-es="Cada proyecto empieza con algo pequeño y útil, y crece al ritmo de tu operación." data-en="Every project starts with something small and useful, then grows at the pace of your operation.">Cada proyecto empieza con algo pequeño y útil, y crece al ritmo de tu operación.</p>
+					<p class="method-phases" aria-label="Lanzar, escalar, expandir" data-es-aria="Lanzar, escalar, expandir" data-en-aria="Launch, scale, expand"><span data-es="LANZAR" data-en="LAUNCH">LANZAR</span> <span>·</span> <span data-es="ESCALAR" data-en="SCALE">ESCALAR</span> <span>·</span> <strong data-es="EXPANDIR" data-en="EXPAND">EXPANDIR</strong></p>
+				</div>
+			</div>
+			<ol class="method-track" data-method-track>
+				{phases.map((phase) => (
+					<li class="method-panel" data-method-panel>
+						<span class="method-ghost" aria-hidden="true">{phase.number}</span>
+						<div class="method-panel-content">
+							<p class="method-panel-index">{phase.number} <span>/ 03</span></p>
+							<h3 data-es={phase.title} data-en={phase.title === 'Lanzar.' ? 'Launch.' : phase.title === 'Escalar.' ? 'Scale.' : 'Expand.'}>{phase.title}</h3>
+							<div class="method-rule" aria-hidden="true"></div>
+							<p class="method-lead" data-es={phase.lead} data-en={phase.leadEn}>{phase.lead}</p>
+							<ul>
+								{phase.items.map((item, itemIndex) => <li data-es={item} data-en={phase.itemsEn[itemIndex]}>{item}</li>)}
+							</ul>
+						</div>
+					</li>
+				))}
+			</ol>
+			<div class="method-progress" aria-hidden="true"><span data-method-progress></span></div>
+		</div>
+	</div>
+</section>
+
+<script>
+	const method = document.querySelector('[data-method]');
+	const intro = method?.querySelector('[data-method-intro]');
+	const canvas = method?.querySelector('[data-method-swarm]');
+	const track = method?.querySelector('[data-method-track]');
+	const panels = method ? [...method.querySelectorAll('[data-method-panel]')] : [];
+	const progressLine = method?.querySelector('[data-method-progress]');
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const mobile = window.matchMedia('(max-width: 899px)').matches;
+
+	if (method && intro && canvas && track && progressLine) {
+		const context = canvas.getContext('2d');
+		const count = mobile ? 240 : window.innerWidth < 1200 ? 350 : 900;
+		const x = new Float32Array(count);
+		const y = new Float32Array(count);
+		const vx = new Float32Array(count);
+		const vy = new Float32Array(count);
+		const size = new Float32Array(count);
+		const alpha = new Float32Array(count);
+		const seed = new Float32Array(count);
+		const pointer = { x: -1000, y: -1000, active: false };
+		const sprite = document.createElement('canvas');
+		sprite.width = 12;
+		sprite.height = 12;
+		const spriteContext = sprite.getContext('2d');
+		spriteContext.fillStyle = '#c8c3ba';
+		spriteContext.beginPath();
+		spriteContext.arc(6, 6, 5, 0, Math.PI * 2);
+		spriteContext.fill();
+		let width = 0;
+		let height = 0;
+		let dpr = 1;
+		let introProgress = 0;
+		let targetProgress = 0;
+		let visible = true;
+		let horizontalActive = false;
+
+		const randomGaussian = () => {
+			let a = 0;
+			let b = 0;
+			while (!a) a = Math.random();
+			while (!b) b = Math.random();
+			return Math.sqrt(-2 * Math.log(a)) * Math.cos(Math.PI * 2 * b);
+		};
+
+		const resize = () => {
+			const bounds = intro.getBoundingClientRect();
+			width = bounds.width;
+			height = bounds.height;
+			dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+			canvas.width = Math.round(width * dpr);
+			canvas.height = Math.round(height * dpr);
+			canvas.style.width = `${width}px`;
+			canvas.style.height = `${height}px`;
+			context.setTransform(dpr, 0, 0, dpr, 0, 0);
+		};
+
+		const seedPoints = () => {
+			for (let index = 0; index < count; index += 1) {
+				const loose = index > count * .92;
+				x[index] = width * (.5 + (loose ? (Math.random() - .5) * .7 : randomGaussian() * .22));
+				y[index] = height * (.26 + (loose ? (Math.random() - .18) * .55 : randomGaussian() * .13));
+				vx[index] = 0;
+				vy[index] = 0;
+				size[index] = 2 + Math.random() * 2.5;
+				alpha[index] = .55 + Math.random() * .4;
+				seed[index] = Math.random() * 100;
+			}
+		};
+
+		const draw = (time) => {
+			if (!visible || !context) return;
+			introProgress += (targetProgress - introProgress) * (reducedMotion ? 1 : .12);
+			context.clearRect(0, 0, width, height);
+			if (!reducedMotion) {
+				const attractorX = width * (.5 + Math.sin(time * .00035) * .16);
+				const attractorY = height * (.26 + Math.sin(time * .00049) * .08);
+				for (let index = 0; index < count; index += 1) {
+					const flow = Math.sin((x[index] + time * .035 + seed[index]) * .0012) * .018;
+					const dx = attractorX - x[index];
+					const dy = attractorY - y[index];
+					const distance = Math.max(40, Math.hypot(dx, dy));
+					vx[index] += flow + (dx / distance) * .012;
+					vy[index] += Math.cos((y[index] - time * .025 + seed[index]) * .0012) * .018 + (dy / distance) * .012;
+					if (pointer.active) {
+						const px = pointer.x - x[index];
+						const py = pointer.y - y[index];
+						const pointerDistance = Math.max(1, Math.hypot(px, py));
+						if (pointerDistance < 120) {
+							const force = (120 - pointerDistance) / 120 * .18;
+							vx[index] -= px / pointerDistance * force;
+							vy[index] -= py / pointerDistance * force;
+						}
+					}
+					vx[index] *= .985;
+					vy[index] *= .985;
+					x[index] += vx[index];
+					y[index] += vy[index];
+					x[index] = (x[index] + width) % width;
+					y[index] = (y[index] + height) % height;
+				}
+			}
+			const opacity = Math.max(0, 1 - introProgress);
+			for (let index = 0; index < count; index += 1) {
+				context.globalAlpha = alpha[index] * opacity;
+				const pointSize = size[index];
+				context.drawImage(sprite, x[index] - pointSize / 2, y[index] - pointSize / 2, pointSize, pointSize);
+			}
+			context.globalAlpha = 1;
+		};
+
+		const updateScroll = (progress = targetProgress) => {
+			targetProgress = Math.max(0, Math.min(1, progress));
+		};
+
+		const updatePanels = () => {
+			const max = Math.max(1, track.scrollWidth - window.innerWidth);
+			const progress = Math.max(0, Math.min(1, -track.getBoundingClientRect().left / max));
+			progressLine.style.transform = `scaleX(${progress})`;
+		};
+
+		resize();
+		seedPoints();
+		updateScroll();
+		window.addEventListener('resize', () => { resize(); updateScroll(); }, { passive: true });
+		window.addEventListener('pointermove', (event) => {
+			if (!window.matchMedia('(pointer: fine)').matches) return;
+			const bounds = intro.getBoundingClientRect();
+			pointer.x = event.clientX - bounds.left;
+			pointer.y = event.clientY - bounds.top;
+			pointer.active = true;
+		}, { passive: true });
+		window.addEventListener('pointerleave', () => { pointer.active = false; }, { passive: true });
+		new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0 }).observe(intro);
+		window.addEventListener('helix-tick', (event) => {
+			const time = event.detail?.time ? event.detail.time * 1000 : performance.now();
+			updateScroll();
+			draw(time);
+			updatePanels();
+		});
+
+		const sectionObserver = new IntersectionObserver(([entry]) => {
+			if (!horizontalActive) document.documentElement.classList.toggle('on-light', entry.isIntersecting);
+		}, { rootMargin: '-35% 0px -35% 0px', threshold: 0 });
+		sectionObserver.observe(method);
+
+		if (!mobile && !reducedMotion) {
+			(async () => {
+				const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger')]);
+				gsap.registerPlugin(ScrollTrigger);
+				const horizontalSection = method.querySelector('[data-method-horizontal]');
+				const horizontal = ScrollTrigger.create({
+					trigger: horizontalSection,
+					pin: track.parentElement,
+					start: 'top top',
+					end: () => `+=${Math.max(1, track.scrollWidth - window.innerWidth)}`,
+					scrub: 1,
+					pinSpacing: true,
+					invalidateOnRefresh: true,
+					onToggle: (self) => {
+						horizontalActive = self.isActive;
+						document.documentElement.classList.toggle('on-light', self.isActive);
+					},
+					onUpdate: (self) => {
+						document.documentElement.classList.add('on-light');
+						const introExit = Math.min(1, self.progress / .22);
+						updateScroll(introExit);
+						const distance = Math.max(1, track.scrollWidth - window.innerWidth);
+						const phasesProgress = Math.max(0, Math.min(1, (self.progress - .12) / .88));
+						gsap.set(intro, {
+							autoAlpha: 1 - introExit,
+							scale: 1 + introExit * .14,
+						});
+						gsap.set(track, { x: window.innerWidth - phasesProgress * (distance + window.innerWidth) });
+						panels.forEach((panel, index) => {
+							const panelProgress = Math.max(0, Math.min(1, phasesProgress * panels.length - index));
+							const reveal = Math.max(0, Math.min(1, (panelProgress + .28) / .28));
+							const ghost = panel.querySelector('.method-ghost');
+							const content = panel.querySelector('.method-panel-content');
+							if (ghost) {
+								ghost.style.opacity = String(panelProgress);
+								ghost.style.clipPath = `inset(0 ${(1 - panelProgress) * 100}% 0 0)`;
+								ghost.style.transform = `translate(${(1 - panelProgress) * 8}vw, -50%) scale(${.96 + panelProgress * .04})`;
+							}
+							if (content) {
+								content.style.opacity = String(reveal);
+								content.style.transform = `translateY(${(1 - reveal) * 24}px)`;
+								const indexLabel = content.querySelector('.method-panel-index');
+								const title = content.querySelector('h3');
+								if (indexLabel) {
+									indexLabel.style.clipPath = `inset(0 ${(1 - reveal) * 100}% 0 0)`;
+								}
+								if (title) {
+									title.style.opacity = String(panelProgress);
+									title.style.filter = `blur(${(1 - panelProgress) * 10}px)`;
+									title.style.transform = `translateX(${(1 - panelProgress) * 72}px)`;
+								}
+							}
+						});
+						updatePanels();
+					},
+				});
+				if (horizontalSection) {
+					horizontalSection.style.height = 'auto';
+					method.style.height = 'auto';
+				}
+				let refreshTimer = 0;
+				const scheduleRefresh = () => {
+					window.clearTimeout(refreshTimer);
+					refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 150);
+				};
+				document.fonts.ready.then(scheduleRefresh);
+				window.addEventListener('load', scheduleRefresh, { once: true });
+				document.querySelectorAll('img').forEach((image) => {
+					if (!image.complete) image.addEventListener('load', scheduleRefresh, { once: true });
+				});
+				const bodyObserver = new ResizeObserver(scheduleRefresh);
+				bodyObserver.observe(document.body);
+				window.addEventListener('beforeunload', () => {
+					window.clearTimeout(refreshTimer);
+					bodyObserver.disconnect();
+					horizontal.kill();
+				}, { once: true });
+			})();
+		}
+	}
+</script>
